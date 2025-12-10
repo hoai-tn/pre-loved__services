@@ -25,8 +25,10 @@ export class DatabaseHealthService implements OnModuleInit {
 
       // Check if tables exist
       const tables = await this.dataSource.query('SHOW TABLES');
-      console.log('📋 Existing tables:', tables.map(t => Object.values(t)[0]));
-
+      console.log(
+        '📋 Existing tables:',
+        tables.map(t => Object.values(t)[0]),
+      );
     } catch (error) {
       console.error('❌ Database connection failed:', error.message);
       console.error('Full error:', error);
@@ -46,7 +48,7 @@ export class DatabaseHealthService implements OnModuleInit {
   async createTablesIfNeeded() {
     try {
       const tables = await this.checkTables();
-      
+
       if (!tables.includes('brands')) {
         console.log('📝 Creating brands table...');
         await this.dataSource.query(`

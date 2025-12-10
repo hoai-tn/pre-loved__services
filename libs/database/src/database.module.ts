@@ -19,10 +19,12 @@ import { DatabaseHealthService } from './database-health.service';
       autoLoadEntities: true,
       synchronize: true, // Bật lại để tạo bảng với schema mới
       logging: ['error', 'warn', 'info', 'schema'],
-      ssl: process.env.MYSQL_HOST?.includes('aivencloud.com') ? { rejectUnauthorized: false } : false,
+      ssl: process.env.MYSQL_HOST?.includes('aivencloud.com')
+        ? { rejectUnauthorized: false }
+        : false,
     }),
   ],
   providers: [DatabaseHealthService],
   exports: [TypeOrmModule, DatabaseHealthService],
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

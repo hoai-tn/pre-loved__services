@@ -5,7 +5,6 @@ export * from './constants/queues';
 export * from './rmq/rmq.module';
 export * from './rmq/rmq.service';
 
-
 export * from './postgres/postgres.module';
 export * from './postgres/postgres.service';
 

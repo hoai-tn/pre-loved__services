@@ -3,7 +3,8 @@ import { CachedService } from './cached.service';
 import Redis from 'ioredis';
 
 @Module({
-  providers: [CachedService,
+  providers: [
+    CachedService,
     {
       provide: 'REDIS_CLIENT',
       async useFactory() {
@@ -13,9 +14,9 @@ import Redis from 'ioredis';
           username: 'default',
           password: 'mEcL9ky7j8MrrFb0S4kol0WsbO73lWef',
         });
-      }
-    }
+      },
+    },
   ],
   exports: [CachedService],
 })
-export class CachedModule { }
+export class CachedModule {}

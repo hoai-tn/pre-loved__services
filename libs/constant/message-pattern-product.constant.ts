@@ -25,4 +25,5 @@ export const PRODUCT_MESSAGE_PATTERNS = {
   CATEGORY_FIND_BY_ID: 'category.findById',
 } as const;
 
-export type ProductMessagePattern = typeof PRODUCT_MESSAGE_PATTERNS[keyof typeof PRODUCT_MESSAGE_PATTERNS];
+export type ProductMessagePattern =
+  (typeof PRODUCT_MESSAGE_PATTERNS)[keyof typeof PRODUCT_MESSAGE_PATTERNS];
