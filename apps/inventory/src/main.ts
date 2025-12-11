@@ -1,17 +1,16 @@
-import { NestFactory } from '@nestjs/core';
 import { RmqService } from '@app/common';
-import { InventoryModule } from './inventory.module';
-import { Transport, MicroserviceOptions } from '@nestjs/microservices';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { PORT_TCP } from 'libs/constant/port-tcp.constant';
 import { AllRpcExceptionFilter } from './filters/rpc-exception.filter';
+import { InventoryModule } from './inventory.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(InventoryModule);
 
   // // Get RMQ service for message queue communication
-  // const rmqService = app.get<RmqService>(RmqService);
-  // app.connectMicroservice(rmqService.getOptions('INVENTORY_SERVICE_QUEUE'));
+  const rmqService = app.get<RmqService>(RmqService);
+  app.connectMicroservice(rmqService.getOptions('INVENTORY_SERVICE_QUEUE'));
 
   // Add TCP microservice for direct communication
   app.connectMicroservice<MicroserviceOptions>({

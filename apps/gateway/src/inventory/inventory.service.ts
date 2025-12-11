@@ -1,11 +1,16 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import {
+  IInventoryCreate,
+  IInventoryFindAll,
+  IInventoryFindByProductId,
+  IInventoryFindBySku,
+  IInventoryFindOne,
+} from '@app/common/interfaces';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom, timeout, catchError } from 'rxjs';
-import { throwError } from 'rxjs';
-import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
+import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
+import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
 import { MicroserviceErrorHandler } from '../common/microservice-error.handler';
-import { IInventory } from '@app/common/interfaces/inventory.interface';
 
 // DTOs are now in separate files for better Swagger documentation
 
@@ -21,7 +26,7 @@ export class InventoryService {
   async create(data: any) {
     try {
       this.logger.log(`Creating inventory: ${JSON.stringify(data)}`);
-      return await firstValueFrom<IInventory>(
+      return await firstValueFrom<IInventoryCreate>(
         this.inventoryClient
           .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CREATE, data)
           .pipe(
@@ -40,7 +45,7 @@ export class InventoryService {
 
   async findAll() {
     try {
-      return await firstValueFrom<IInventory>(
+      return await firstValueFrom<IInventoryFindAll>(
         this.inventoryClient
           .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_ALL, {})
           .pipe(
@@ -59,7 +64,7 @@ export class InventoryService {
 
   async findOne(id: number) {
     try {
-      return await firstValueFrom<IInventory>(
+      return await firstValueFrom<IInventoryFindOne>(
         this.inventoryClient
           .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_ONE, id)
           .pipe(
@@ -78,7 +83,7 @@ export class InventoryService {
 
   async findByProductId(productId: number) {
     try {
-      return await firstValueFrom<IInventory>(
+      return await firstValueFrom<IInventoryFindByProductId>(
         this.inventoryClient
           .send(
             INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_BY_PRODUCT_ID,
@@ -100,7 +105,7 @@ export class InventoryService {
 
   async findBySku(sku: string) {
     try {
-      return await firstValueFrom(
+      return await firstValueFrom<IInventoryFindBySku>(
         this.inventoryClient
           .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_BY_SKU, sku)
           .pipe(

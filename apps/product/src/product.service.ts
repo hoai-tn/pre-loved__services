@@ -1,21 +1,30 @@
+import { IInventoryCreate } from '@app/common/interfaces';
 import {
-  Injectable,
-  NotFoundException,
   ConflictException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateInventoryDto } from 'apps/gateway/src/inventory/dto/create-inventory.dto';
+import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
+import { firstValueFrom } from 'rxjs';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { Product } from './entity/product.entity';
-import { Brand } from './entity/brand.entity';
-import { Category } from './entity/category.entity';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsQueryDto } from './dto/get-products-query.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { Brand } from './entity/brand.entity';
+import { Category } from './entity/category.entity';
+import { Product } from './entity/product.entity';
 
 @Injectable()
 export class ProductService {
+  private readonly logger = new Logger(ProductService.name);
+
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -23,10 +32,12 @@ export class ProductService {
     private readonly brandRepository: Repository<Brand>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    @Inject('INVENTORY_SERVICE')
+    private readonly inventoryService: ClientProxy,
   ) {}
 
   // Product methods
-  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
+  async createProduct(createProductDto: CreateProductDto) {
     // Check if SKU already exists
     const existingProduct = await this.productRepository.findOne({
       where: { sku: createProductDto.sku },
@@ -54,7 +65,24 @@ export class ProductService {
     }
 
     const product = this.productRepository.create(createProductDto);
-    return this.productRepository.save(product);
+
+    const savedProduct = await this.productRepository.save(product);
+    this.logger.log(
+      `[PRODUCT] Creating inventory for product ${savedProduct.id}`,
+    );
+
+    await firstValueFrom(
+      this.inventoryService.send<IInventoryCreate, CreateInventoryDto>(
+        INVENTORY_MESSAGE_PATTERNS.INVENTORY_CREATE,
+        {
+          productId: savedProduct.id,
+          sku: savedProduct.sku,
+          availableStock: savedProduct.stockQuantity,
+        },
+      ),
+    );
+
+    return savedProduct;
   }
 
   async findAllProducts(query: GetProductsQueryDto) {

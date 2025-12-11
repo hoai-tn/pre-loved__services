@@ -1,7 +1,7 @@
-import { Controller, Logger, Post, Body } from '@nestjs/common';
+import { CMD } from '@app/common/constants/cmd';
+import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { OrdersService } from './orders.service';
-import { CMD } from '@app/common/constants/cmd';
 
 @Controller('orders')
 export class OrdersController {

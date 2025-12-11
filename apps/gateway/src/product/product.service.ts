@@ -1,24 +1,17 @@
-import {
-  Injectable,
-  Inject,
-  Logger,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom, timeout, catchError } from 'rxjs';
-import { throwError } from 'rxjs';
-import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
-import { PRODUCT_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-product.constant';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
+import { PRODUCT_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-product.constant';
 import { USER_MESSAGE_PATTERN } from 'libs/constant/message-pattern.constant';
+import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
+import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
 import { MicroserviceErrorHandler } from '../common/microservice-error.handler';
 import {
-  CreateProductDto,
-  UpdateProductDto,
-  GetProductsQueryDto,
   CreateBrandDto,
   CreateCategoryDto,
+  CreateProductDto,
+  GetProductsQueryDto,
+  UpdateProductDto,
 } from './dto/product-simple.dto';
 
 export interface ProductWithInventory {

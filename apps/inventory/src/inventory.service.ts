@@ -1,11 +1,11 @@
 import {
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, QueryFailedError } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { Inventory } from './inventory.entity';
 
 export interface CreateInventoryDto {
@@ -43,6 +43,7 @@ export class InventoryService {
 
   async create(data: CreateInventoryDto): Promise<Inventory> {
     try {
+      this.logger.log(`[INVENTORY] Create inventory`, data);
       // Check if inventory for this product already exists
       const existing = await this.inventoryRepository.findOne({
         where: { productId: data.productId },
@@ -55,7 +56,11 @@ export class InventoryService {
       }
 
       const inventory = this.inventoryRepository.create(data);
-      return await this.inventoryRepository.save(inventory);
+      const savedInventory = await this.inventoryRepository.save(inventory);
+      this.logger.log(
+        `[INVENTORY] Inventory created for product ${savedInventory.productId}`,
+      );
+      return savedInventory;
     } catch (error) {
       // Handle database constraint errors
       if (error instanceof QueryFailedError) {
