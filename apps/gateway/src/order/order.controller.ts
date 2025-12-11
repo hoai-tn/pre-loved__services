@@ -1,6 +1,7 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import CreateOrderDto from './dto/create-order.dto';
 import { OrderService } from './order.service';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Order')
 @Controller('order')
@@ -12,5 +13,13 @@ export class OrderController {
   @ApiResponse({ status: 200, description: 'Order and user info.' })
   async getOrderByUser(@Param('id') id: string) {
     return await this.orderService.getOrderByUser(id);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Place a new order' })
+  @ApiBody({ type: CreateOrderDto })
+  @ApiResponse({ status: 201, description: 'Order created successfully' })
+  async createOrder(@Body() payload: CreateOrderDto) {
+    return await this.orderService.createOrder(payload);
   }
 }

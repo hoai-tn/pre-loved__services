@@ -1,14 +1,15 @@
+import { CachedService } from '@app/cached';
+import { CMD } from '@app/common/constants/cmd';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CachedService } from '@app/cached';
-import { firstValueFrom, timeout, catchError } from 'rxjs';
-import { throwError } from 'rxjs';
 import {
   ORDER_MESSAGE_PATTERN,
   USER_MESSAGE_PATTERN,
 } from 'libs/constant/message-pattern.constant';
 import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
+import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
 import { MicroserviceErrorHandler } from '../common/microservice-error.handler';
+import CreateOrderDto from './dto/create-order.dto';
 
 export abstract class BaseAggregatorService {
   protected logger = new Logger(BaseAggregatorService.name);
@@ -37,11 +38,33 @@ export class OrderService {
     @Inject(CachedService) private readonly redisService: CachedService,
   ) {}
 
-  async getOrderByUser(userId: string) {
+  async createOrder(payload: CreateOrderDto) {
+    try {
+      this.logger.log(
+        `[ORDER-TCP] Creating order with payload: ${JSON.stringify(payload)}`,
+      );
+      return await firstValueFrom<unknown>(
+        this.ordersClient.send({ cmd: CMD.CREATE_ORDER }, payload).pipe(
+          timeout(5000),
+          catchError(err => throwError(() => err)),
+        ),
+      );
+    } catch (error) {
+      MicroserviceErrorHandler.handleError(
+        error,
+        'create order',
+        'Orders Service',
+      );
+    }
+  }
+
+  async getOrderByUser(
+    userId: string,
+  ): Promise<{ user: unknown; orders: unknown }> {
     const cacheKey = `order_user:${userId}`;
     const cached = await this.redisService.get(cacheKey);
     if (cached) {
-      return JSON.parse(cached);
+      return JSON.parse(cached) as { user: unknown; orders: unknown };
     }
     const uid = Number(userId);
     if (isNaN(uid)) {
@@ -66,8 +89,8 @@ export class OrderService {
     // return result;
 
     // Aggregator: gọi các service con và tổng hợp kết quả
-    const [orders, user] = await Promise.all([
-      firstValueFrom(
+    const [orders, user] = await Promise.all<unknown[]>([
+      firstValueFrom<unknown>(
         this.ordersClient
           .send(ORDER_MESSAGE_PATTERN.GET_ORDERS_BY_USER, uid)
           .pipe(
@@ -77,7 +100,7 @@ export class OrderService {
             }),
           ),
       ),
-      firstValueFrom(
+      firstValueFrom<unknown>(
         this.userClient
           .send({ cmd: USER_MESSAGE_PATTERN.GET_USER_INFO }, uid)
           .pipe(
