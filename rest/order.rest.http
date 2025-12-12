@@ -10,7 +10,6 @@ Content-Type: {{contentType}}
 {
   "userId": 1,
   "items": [
-    { "product_id": 2, "quantity": 1, "price": 100 }
-  ],
-  "status": "pending"
+    { "productId": 2, "quantity": 1 }
+  ]
 }

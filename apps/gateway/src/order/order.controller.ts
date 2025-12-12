@@ -1,10 +1,17 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import CreateOrderDto from './dto/create-order.dto';
 import { OrderService } from './order.service';
 
 @ApiTags('Order')
-@Controller('order')
+@Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
@@ -19,7 +26,7 @@ export class OrderController {
   @ApiOperation({ summary: 'Place a new order' })
   @ApiBody({ type: CreateOrderDto })
   @ApiResponse({ status: 201, description: 'Order created successfully' })
-  async createOrder(@Body() payload: CreateOrderDto) {
+  async createOrder(@Body(ValidationPipe) payload: CreateOrderDto) {
     return await this.orderService.createOrder(payload);
   }
 }

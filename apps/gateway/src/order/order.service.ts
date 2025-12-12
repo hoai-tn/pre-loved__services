@@ -1,5 +1,4 @@
 import { CachedService } from '@app/cached';
-import { CMD } from '@app/common/constants/cmd';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -44,10 +43,12 @@ export class OrderService {
         `[ORDER-TCP] Creating order with payload: ${JSON.stringify(payload)}`,
       );
       return await firstValueFrom<unknown>(
-        this.ordersClient.send({ cmd: CMD.CREATE_ORDER }, payload).pipe(
-          timeout(5000),
-          catchError(err => throwError(() => err)),
-        ),
+        this.ordersClient
+          .send(ORDER_MESSAGE_PATTERN.CREATE_ORDER, payload)
+          .pipe(
+            timeout(5000),
+            catchError(err => throwError(() => err)),
+          ),
       );
     } catch (error) {
       MicroserviceErrorHandler.handleError(
