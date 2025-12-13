@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import CreateOrderDto from 'apps/gateway/src/order/dto/create-order.dto';
+import { CreateOrderDto } from 'apps/gateway/src/order/dto/create-order.dto';
 import { ORDER_MESSAGE_PATTERN } from 'libs/constant/message-pattern.constant';
 import { OrdersService } from './orders.service';
 
@@ -10,13 +10,9 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @MessagePattern(ORDER_MESSAGE_PATTERN.CREATE_ORDER)
-  createOrder(@Payload() payload: CreateOrderDto) {
-    this.logger.log(
-      `[ORDERS] Received create_order request with payload: ${JSON.stringify(payload)}`,
-    );
-    // const { userId, items } = payload;
-    // return await this.ordersService.placeOrder(userId, items);
-    return true;
+  async createOrder(@Payload() payload: CreateOrderDto) {
+    const { userId, items } = payload;
+    return await this.ordersService.placeOrder(userId, items);
   }
 
   @MessagePattern('get_orders_by_user')

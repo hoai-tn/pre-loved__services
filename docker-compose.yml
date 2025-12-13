@@ -36,12 +36,13 @@ services:
     image: rabbitmq:4-management
     hostname: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672" # RabbitMQ Management UI
+      - '5672:5672'
+      - '15672:15672' # RabbitMQ Management UI
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
       RABBITMQ_DEFAULT_VHOST: /rabbit-pre-loved
+    restart: unless-stopped
 networks:
   default:
     name: ecommerce_net

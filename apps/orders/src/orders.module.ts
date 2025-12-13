@@ -1,14 +1,13 @@
-import { Module } from '@nestjs/common';
-import { OrdersController } from './orders.controller';
-import { OrdersService } from './orders.service';
-import { ConfigModule } from '@nestjs/config';
-import { MysqlModule } from '@app/common';
 import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrderItem } from './entity/order_item.entity';
-import { Order } from './entity/order.entity';
 import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
+import { Order } from './entity/order.entity';
+import { OrderItem } from './entity/order_item.entity';
+import { OrdersController } from './orders.controller';
+import { OrdersService } from './orders.service';
 
 @Module({
   imports: [
@@ -22,6 +21,14 @@ import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
       maxRedirects: 5,
     }),
     ClientsModule.register([
+      {
+        name: NAME_SERVICE_TCP.PRODUCT_SERVICE,
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: PORT_TCP.PRODUCT_TCP_PORT, // Default port for product service
+        },
+      },
       {
         name: NAME_SERVICE_TCP.INVENTORY_SERVICE,
         transport: Transport.TCP,

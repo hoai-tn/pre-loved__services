@@ -7,7 +7,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import CreateOrderDto from './dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderService } from './order.service';
 
 @ApiTags('Order')

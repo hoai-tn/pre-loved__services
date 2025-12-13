@@ -8,7 +8,7 @@ import {
 import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
 import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
 import { MicroserviceErrorHandler } from '../common/microservice-error.handler';
-import CreateOrderDto from './dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 export abstract class BaseAggregatorService {
   protected logger = new Logger(BaseAggregatorService.name);
