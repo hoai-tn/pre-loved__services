@@ -221,4 +221,18 @@ export class InventoryService {
       .andWhere('inventory.isActive = :isActive', { isActive: true })
       .getMany();
   }
+
+  async handleOrderCreated(order: any) {
+    // ... Logic nghiệp vụ xử lý inventory khi có order mới ...
+    this.logger.log(
+      `Handling order created for inventory: ${JSON.stringify(order)}...`,
+    );
+
+    // Giả lập một tác vụ mất thời gian
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    this.logger.log(
+      `Inventory processed successfully for order ${JSON.stringify(order)}.`,
+    );
+  }
 }

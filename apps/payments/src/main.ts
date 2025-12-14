@@ -1,9 +1,9 @@
-import { NestFactory } from '@nestjs/core';
 import { RmqService } from '@app/common';
-import { PaymentsModule } from './payments.module';
-import { ValidationPipe } from '@nestjs/common';
 import { EXCHANGE } from '@app/common/constants/exchange';
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { AllRpcExceptionFilter } from './filters/rpc-exception.filter';
+import { PaymentsModule } from './payments.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(PaymentsModule);
@@ -20,15 +20,15 @@ async function bootstrap() {
     }),
   );
 
-  // // const rmqService = app.get<RmqService>(RmqService);
-
   // // // Kết nối microservice, lắng nghe trên queue 'PAYMENTS_SERVICE_QUEUE'
-  // // app.connectMicroservice(rmqService.getOptions('PAYMENTS_SERVICE_QUEUE'));
-  // const rmqService = app.get<RmqService>(RmqService);
-  //   app.connectMicroservice(rmqService.getOptionsTopic('PAYMENTS_SERVICE', false, {
-  //     name: EXCHANGE.ORDERS_EXCHANGE,
-  //     type: 'fanout',
-  //   }));
+  const rmqService = app.get<RmqService>(RmqService);
+  // app.connectMicroservice(rmqService.getOptions('PAYMENTS_SERVICE_QUEUE'));
+  app.connectMicroservice(
+    rmqService.getOptionsTopic('PAYMENTS_SERVICE_QUEUE', false, {
+      name: EXCHANGE.ORDERS_EXCHANGE,
+      type: 'fanout',
+    }),
+  );
   await app.startAllMicroservices();
   console.log('💳 Payments microservice is running and listening for events.');
 }

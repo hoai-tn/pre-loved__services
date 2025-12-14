@@ -1,17 +1,28 @@
+import { RmqService } from '@app/common';
+import { EVENT } from '@app/common/constants/event';
 import { Controller, Logger } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
 import {
-  InventoryService,
+  Ctx,
+  EventPattern,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
+import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
+import {
   CreateInventoryDto,
+  InventoryService,
   UpdateInventoryDto,
 } from './inventory.service';
-import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
 
 @Controller('inventory')
 export class InventoryController {
   private readonly logger = new Logger(InventoryController.name);
 
-  constructor(private readonly inventoryService: InventoryService) {}
+  constructor(
+    private readonly inventoryService: InventoryService,
+    private readonly rmqService: RmqService,
+  ) {}
 
   @MessagePattern(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CREATE)
   async createInventory(data: CreateInventoryDto) {
@@ -103,5 +114,21 @@ export class InventoryController {
     this.logger.log(`[INVENTORY-TCP] Remove inventory id ${id}`);
     const success = await this.inventoryService.remove(id);
     return { success };
+  }
+
+  @EventPattern(EVENT.ORDER_CREATED_EVENT)
+  async handleOrderCreated(@Payload() data: any, @Ctx() context: RmqContext) {
+    this.logger.log(
+      `[INVENTORY] Received event for order: ${JSON.stringify(data)}`,
+    );
+
+    // Gọi service để xử lý nghiệp vụ inventory
+    await this.inventoryService.handleOrderCreated(data);
+
+    // Xác nhận đã xử lý xong message để RabbitMQ xóa nó khỏi queue
+    this.rmqService.ack(context);
+    this.logger.log(
+      `[INVENTORY] Acknowledged event for order ${JSON.stringify(data)}`,
+    );
   }
 }

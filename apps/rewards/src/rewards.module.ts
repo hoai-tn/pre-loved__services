@@ -1,6 +1,6 @@
+import { PostgresModule, RmqModule, RmqService } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PostgresModule, RmqModule, RmqService } from '@app/common';
 import { RewardsController } from './rewards.controller';
 import { RewardsService } from './rewards.service';
 
@@ -11,7 +11,7 @@ import { RewardsService } from './rewards.service';
       isGlobal: true,
       envFilePath: './local/nodeB/.env',
     }),
-    // RmqModule
+    RmqModule,
   ],
   controllers: [RewardsController],
   providers: [RewardsService, RmqService],

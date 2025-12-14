@@ -1,14 +1,23 @@
-import { NestFactory } from '@nestjs/core';
 import { RmqService } from '@app/common';
-import { RewardsModule } from './rewards.module';
-import { ValidationPipe } from '@nestjs/common';
 import { EXCHANGE } from '@app/common/constants/exchange';
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { AllRpcExceptionFilter } from './filters/rpc-exception.filter';
+import { RewardsModule } from './rewards.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(RewardsModule, {
     logger: ['log', 'error', 'warn', 'debug', 'verbose'],
   });
+
+  const rmqService = app.get<RmqService>(RmqService);
+
+  app.connectMicroservice(
+    rmqService.getOptionsTopic('REWARDS_SERVICE_QUEUE', false, {
+      name: EXCHANGE.ORDERS_EXCHANGE,
+      type: 'fanout',
+    }),
+  );
 
   // Enable global RPC exception filter for microservices
   app.useGlobalFilters(new AllRpcExceptionFilter());

@@ -1,3 +1,4 @@
+import { RmqModule } from '@app/common';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -40,7 +41,7 @@ import { OrdersService } from './orders.service';
     ]),
     // RmqModule.register({name: "INVENTORY_SERVICE"}),
     // RmqModule.register({name: "PAYMENTS_SERVICE"}),
-    // RmqModule.registerDirectPublisher()
+    RmqModule.registerDirectPublisher(),
     // TYPEORM_MODULE.forFeature([Order, OrderItem])
     TypeOrmModule.forRoot({
       type: 'mysql',

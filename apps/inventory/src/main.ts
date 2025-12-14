@@ -1,4 +1,5 @@
 import { RmqService } from '@app/common';
+import { EXCHANGE } from '@app/common/constants/exchange';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { PORT_TCP } from 'libs/constant/port-tcp.constant';
@@ -8,9 +9,19 @@ import { InventoryModule } from './inventory.module';
 async function bootstrap() {
   const app = await NestFactory.create(InventoryModule);
 
-  // // Get RMQ service for message queue communication
+  // Get RMQ service for message queue communication
   const rmqService = app.get<RmqService>(RmqService);
+
+  // Connect to queue for RPC communication
   app.connectMicroservice(rmqService.getOptions('INVENTORY_SERVICE_QUEUE'));
+
+  // Connect to fanout exchange for order created events
+  app.connectMicroservice(
+    rmqService.getOptionsTopic(EXCHANGE.ORDERS_EXCHANGE, false, {
+      name: EXCHANGE.ORDERS_EXCHANGE,
+      type: 'fanout',
+    }),
+  );
 
   // Add TCP microservice for direct communication
   app.connectMicroservice<MicroserviceOptions>({

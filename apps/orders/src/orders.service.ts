@@ -1,3 +1,5 @@
+import { EVENT } from '@app/common/constants/event';
+import { EXCHANGE } from '@app/common/constants/exchange';
 import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
@@ -8,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Channel } from 'amqp-connection-manager';
 import { IProduct } from 'libs/common/src/interfaces';
 import { IStockCheckResult } from 'libs/common/src/interfaces/inventory.interface';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
@@ -30,6 +33,10 @@ export class OrdersService {
     private readonly httpService: HttpService,
     @Inject('INVENTORY_SERVICE') private readonly inventoryClient: ClientProxy,
     @Inject('PRODUCT_SERVICE') private readonly productClient: ClientProxy,
+
+    @Inject(EXCHANGE.RMQ_PUBLISHER_CHANNEL)
+    private readonly fanoutPublisher: Channel,
+
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
   ) {}
@@ -86,9 +93,15 @@ export class OrdersService {
       async entityManager => {
         const order = entityManager.create(Order, { user_id: userId, total });
         await entityManager.save(order);
-        const orderItems = itemsWithPrices.map(item =>
-          entityManager.create(OrderItem, { ...item, order_id: order.id }),
-        );
+        const orderItems = itemsWithPrices.map(item => {
+          this.logger.debug('[ORDERS] Creating order item', item);
+          return entityManager.create(OrderItem, {
+            product_id: Number(item.productId),
+            quantity: item.quantity,
+            price: item.price,
+            order_id: order.id,
+          });
+        });
         await entityManager.save(orderItems);
         return { order, orderItems };
       },
@@ -98,10 +111,18 @@ export class OrdersService {
         'Failed to save order and order items',
       );
     }
-
     //5. Publish Order Created
+    const payload = {
+      pattern: EVENT.ORDER_CREATED_EVENT,
+      data: { order: result.order, orderItems: result.orderItems },
+    };
+    this.fanoutPublisher.publish(
+      EXCHANGE.ORDERS_EXCHANGE,
+      EVENT.ORDER_CREATED_EVENT,
+      Buffer.from(JSON.stringify(payload)),
+    );
 
-    return result;
+    return { order: result.order, orderItems: result.orderItems };
     // 2. Create order in Order Service
     // const order = await this.orderRepository.save(
     //   this.orderRepository.create({ user_id: userId, total: 0 }),
