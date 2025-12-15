@@ -1,4 +1,4 @@
-import { PostgresModule, RmqModule, RmqService } from '@app/common';
+import { PostgresModule, RmqModule } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RewardsController } from './rewards.controller';
@@ -14,6 +14,6 @@ import { RewardsService } from './rewards.service';
     RmqModule,
   ],
   controllers: [RewardsController],
-  providers: [RewardsService, RmqService],
+  providers: [RewardsService],
 })
 export class RewardsModule {}

@@ -26,7 +26,6 @@ import { InventoryService } from './inventory.service';
     RmqModule.register({ name: 'INVENTORY_SERVICE' }),
     PostgresDatabaseModule,
     TypeOrmModule.forFeature([Inventory]),
-    RmqModule,
   ],
   controllers: [InventoryController],
   providers: [InventoryService],

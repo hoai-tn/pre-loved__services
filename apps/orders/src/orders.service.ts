@@ -82,27 +82,25 @@ export class OrdersService {
         ),
       ),
     );
-    this.logger.debug('[ORDERS] Product prices', productPrices);
     const itemsWithPrices = this.#calculateItemsPrices(items, productPrices);
-    this.logger.debug('[ORDERS] Items with prices', itemsWithPrices);
     const total = this.#calculateTotal(itemsWithPrices);
-    this.logger.debug('[ORDERS] Total', total);
 
     // 3. Save order and order items using transaction
     const result = await this.orderRepository.manager.transaction(
       async entityManager => {
         const order = entityManager.create(Order, { user_id: userId, total });
         await entityManager.save(order);
-        const orderItems = itemsWithPrices.map(item => {
-          this.logger.debug('[ORDERS] Creating order item', item);
-          return entityManager.create(OrderItem, {
+
+        const orderItems = itemsWithPrices.map(item =>
+          entityManager.create(OrderItem, {
             product_id: Number(item.productId),
             quantity: item.quantity,
             price: item.price,
             order_id: order.id,
-          });
-        });
+          }),
+        );
         await entityManager.save(orderItems);
+
         return { order, orderItems };
       },
     );
@@ -123,29 +121,6 @@ export class OrdersService {
     );
 
     return { order: result.order, orderItems: result.orderItems };
-    // 2. Create order in Order Service
-    // const order = await this.orderRepository.save(
-    //   this.orderRepository.create({ user_id: userId, total: 0 }),
-    // );
-
-    //3. Publish order to Order Fanout Exchange
-
-    // const total = items.reduce(
-    //   (sum, item) => sum + item.price * item.quantity,
-    //   0,
-    // );
-    // // Tạo order trước
-    // const order = await this.orderRepository.save(
-    //   this.orderRepository.create({ user_id: userId, total }),
-    // );
-    // // Tạo order_items với order_id vừa tạo
-    // const orderItems = items.map(item =>
-    //   this.orderItemRepository.create({ ...item, order_id: order.id }),
-    // );
-    // await this.orderItemRepository.save(orderItems);
-    // // Gán items vào order để trả về
-    // order.items = orderItems;
-    // return order;
   }
 
   async getOrdersByUser(userId: number): Promise<Order[]> {
