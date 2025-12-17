@@ -1,13 +1,13 @@
+import { CachedModule } from '@app/cached';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { InventoryModule } from './inventory/inventory.module';
-import { UserModule } from './user/user.module';
 import { OrderModule } from './order/order.module';
 import { ProductModule } from './product/product.module';
-import { CachedModule } from '@app/cached';
-import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -42,6 +42,14 @@ import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
         options: {
           host: 'localhost',
           port: PORT_TCP.PRODUCT_TCP_PORT,
+        },
+      },
+      {
+        name: NAME_SERVICE_TCP.AUTH_SERVICE,
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: PORT_TCP.AUTH_TCP_PORT,
         },
       },
     ]),

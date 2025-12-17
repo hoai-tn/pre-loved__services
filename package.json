@@ -25,7 +25,8 @@
     "start:payments": "nest start payments --watch",
     "start:rewards": "nest start rewards --watch",
     "start:product": "nest start product --watch",
-    "start:nodeA": "concurrently -n GATEWAY,ORDERS,USER,PRODUCT -c blue,green,pink,yellow \"npm run start:gateway\" \"npm run start:orders\" \"npm run start:user\" \"npm run start:product\"",
+    "start:auth": "nest start auth --watch",
+    "start:nodeA": "concurrently -n GATEWAY,ORDERS,USER,PRODUCT,AUTH -c blue,green,pink,yellow,magenta \"npm run start:gateway\" \"npm run start:orders\" \"npm run start:user\" \"npm run start:product\" \"npm run start:auth\"",
     "start:nodeB": "concurrently -n INVENTORY,PAYMENTS,REWARDS -c yellow,magenta,cyan \"npm run start:inventory\" \"npm run start:payments\" \"npm run start:rewards\""
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/microservices": "^11.1.7",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.3",
@@ -64,6 +66,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
+    "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.2",
     "concurrently": "^8.2.2",
     "eslint": "^9.18.0",

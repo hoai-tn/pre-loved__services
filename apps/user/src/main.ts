@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { UserModule } from './user.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { PORT_TCP } from 'libs/constant/port-tcp.constant';
 import { AllRpcExceptionFilter } from './filters/rpc-exception.filter';
+import { UserModule } from './user.module';
 
 async function bootstrap() {
   dotenv.config();

@@ -10,6 +10,15 @@
   "monorepo": true,
   "root": "apps/pre-loved",
   "projects": {
+    "auth": {
+      "type": "application",
+      "root": "apps/auth",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth/tsconfig.app.json"
+      }
+    },
     "cached": {
       "type": "library",
       "root": "libs/cached",
@@ -35,15 +44,6 @@
       "sourceRoot": "libs/database/src",
       "compilerOptions": {
         "tsConfigPath": "libs/database/tsconfig.lib.json"
-      }
-    },
-    "pre-loved": {
-      "type": "application",
-      "root": "apps/pre-loved",
-      "entryFile": "main",
-      "sourceRoot": "apps/pre-loved/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/pre-loved/tsconfig.app.json"
       }
     },
     "gateway": {
@@ -80,6 +80,15 @@
       "sourceRoot": "apps/payments/src",
       "compilerOptions": {
         "tsConfigPath": "apps/payments/tsconfig.app.json"
+      }
+    },
+    "pre-loved": {
+      "type": "application",
+      "root": "apps/pre-loved",
+      "entryFile": "main",
+      "sourceRoot": "apps/pre-loved/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/pre-loved/tsconfig.app.json"
       }
     },
     "product": {

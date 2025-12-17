@@ -1,11 +1,11 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { RegisterUserDto, LoginUserDto } from './dto/user.dto';
-import { firstValueFrom, timeout, catchError } from 'rxjs';
-import { throwError } from 'rxjs';
-import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
+import { AUTH_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-auth.constant';
 import { USER_MESSAGE_PATTERN } from 'libs/constant/message-pattern.constant';
+import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
+import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
 import { MicroserviceErrorHandler } from '../common/microservice-error.handler';
+import { LoginUserDto, RegisterUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -14,11 +14,17 @@ export class UserService {
   constructor(
     @Inject(NAME_SERVICE_TCP.USER_SERVICE)
     private readonly userClient: ClientProxy,
+    @Inject(NAME_SERVICE_TCP.AUTH_SERVICE)
+    private readonly authClient: ClientProxy,
   ) {}
 
   async register(dto: RegisterUserDto) {
     try {
       this.logger.log(`Registering user: ${dto.email}`);
+      const authToken = await firstValueFrom(
+        this.authClient.send(AUTH_MESSAGE_PATTERNS.CREATE_USER_AUTH_TOKEN, dto),
+      );
+      this.logger.log(`Auth token: ${JSON.stringify(authToken)}`);
       return await firstValueFrom(
         this.userClient
           .send({ cmd: USER_MESSAGE_PATTERN.REGISTER_USER }, dto)

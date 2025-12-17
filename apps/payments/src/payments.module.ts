@@ -12,7 +12,7 @@ import { PaymentsService } from './payments.service';
       // Quan trọng: Chỉ định đúng đường dẫn tới file .env của nodeB
       envFilePath: './local/nodeB/.env',
     }),
-    RmqModule, // Import module Rmq chung để có thể inject RmqService
+    RmqModule.register({ name: 'PAYMENTS_SERVICE' }),
   ],
   controllers: [PaymentsController],
   providers: [PaymentsService],
