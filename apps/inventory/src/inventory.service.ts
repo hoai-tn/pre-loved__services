@@ -1,6 +1,8 @@
+import { OrderCreatedEventPayload } from '@app/common/interfaces';
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -168,7 +170,14 @@ export class InventoryService {
   }
 
   async reserveStock(productId: number, quantity: number): Promise<boolean> {
+    this.logger.debug(
+      `[INVENTORY] Reserve stock for product ${productId}, quantity ${quantity}`,
+    );
     const inventory = await this.findByProductId(productId);
+
+    this.logger.debug(
+      `[INVENTORY] Inventory found: ${JSON.stringify(inventory)}`,
+    );
 
     if (!inventory || inventory.availableStock < quantity) {
       return false;
@@ -222,17 +231,29 @@ export class InventoryService {
       .getMany();
   }
 
-  async handleOrderCreated(order: any) {
-    // ... Logic nghiệp vụ xử lý inventory khi có order mới ...
+  handleOrderCreated(payload: OrderCreatedEventPayload) {
     this.logger.log(
-      `Handling order created for inventory: ${JSON.stringify(order)}...`,
+      `Handling order created for inventory: ${JSON.stringify(payload.orderItems)}...`,
     );
 
-    // Giả lập một tác vụ mất thời gian
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    this.logger.log(
-      `Inventory processed successfully for order ${JSON.stringify(order)}.`,
-    );
+    Promise.all(
+      payload.orderItems.map(orderItem =>
+        this.reserveStock(Number(orderItem.productId), orderItem.quantity),
+      ),
+    )
+      .then(results => {
+        if (results.some(result => !result)) {
+          throw new InternalServerErrorException('Failed to reserve stock');
+        }
+        this.logger.log(
+          `Inventory processed successfully for order ${JSON.stringify(payload)}.`,
+        );
+      })
+      .catch(error => {
+        this.logger.error(
+          `Failed to process inventory for order ${JSON.stringify(payload)}:`,
+          error,
+        );
+      });
   }
 }

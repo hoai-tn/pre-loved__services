@@ -11,7 +11,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Channel } from 'amqp-connection-manager';
-import { IProduct } from 'libs/common/src/interfaces';
+import { IOrderItem, IProduct } from 'libs/common/src/interfaces';
 import { IStockCheckResult } from 'libs/common/src/interfaces/inventory.interface';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
 import { PRODUCT_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-product.constant';
@@ -19,11 +19,7 @@ import { firstValueFrom, map } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Order } from './entity/order.entity';
 import { OrderItem } from './entity/order_item.entity';
-interface IOrderItem {
-  productId: string;
-  quantity: number;
-  price?: number;
-}
+
 @Injectable()
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
@@ -112,7 +108,14 @@ export class OrdersService {
     //5. Publish Order Created
     const payload = {
       pattern: EVENT.ORDER_CREATED_EVENT,
-      data: { order: result.order, orderItems: result.orderItems },
+      data: {
+        order: result.order,
+        orderItems: result.orderItems.map(item => ({
+          productId: item.product_id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      },
     };
     this.fanoutPublisher.publish(
       EXCHANGE.ORDERS_EXCHANGE,
