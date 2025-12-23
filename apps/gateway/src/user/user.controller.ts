@@ -1,7 +1,14 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoginUserDto, RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import { RegisterUserDto, LoginUserDto } from './dto/user.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('User')
 @Controller('user')
@@ -13,7 +20,7 @@ export class UserController {
   @ApiBody({ type: RegisterUserDto })
   @ApiResponse({ status: 201, description: 'User registered successfully.' })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  async register(@Body() dto: RegisterUserDto) {
+  async register(@Body(ValidationPipe) dto: RegisterUserDto) {
     return await this.userService.register(dto);
   }
 

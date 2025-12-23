@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { AUTH_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-auth.constant';
 import { USER_MESSAGE_PATTERN } from 'libs/constant/message-pattern.constant';
 import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
 import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
@@ -20,12 +19,12 @@ export class UserService {
 
   async register(dto: RegisterUserDto) {
     try {
-      this.logger.log(`Registering user: ${dto.email}`);
-      const authToken = await firstValueFrom(
-        this.authClient.send(AUTH_MESSAGE_PATTERNS.CREATE_USER_AUTH_TOKEN, dto),
-      );
-      this.logger.log(`Auth token: ${JSON.stringify(authToken)}`);
-      return await firstValueFrom(
+      this.logger.log(`Registering user: ${JSON.stringify(dto)}`);
+      // const authToken = await firstValueFrom(
+      //   this.authClient.send(AUTH_MESSAGE_PATTERNS.CREATE_USER_AUTH_TOKEN, dto),
+      // );
+      // this.logger.log(`Auth token: ${JSON.stringify(authToken)}`);
+      return await firstValueFrom<unknown>(
         this.userClient
           .send({ cmd: USER_MESSAGE_PATTERN.REGISTER_USER }, dto)
           .pipe(

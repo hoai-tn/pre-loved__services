@@ -12,7 +12,7 @@ Content-Type: application/json
 
 {
   "username": "hoai_nart_5k",
-  "email": "hoai_nart_5k@gmail.com",
-  "password": "123456",
+  "email": "hoai.dev@gmail.com",
+  "password": "123"
 }
 

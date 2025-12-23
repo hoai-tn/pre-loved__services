@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entity/user.entity';
+import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
-import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-
+import { RegisterUserDto } from './dto/register-user.dto';
+import { User } from './entity/user.entity';
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
@@ -19,17 +19,29 @@ export class UserService {
     return await this.userRepository.find();
   }
   async register(dto: RegisterUserDto): Promise<User> {
-    this.logger.log(`Register user: ${dto.username}`);
+    this.logger.debug(`Register user: ${dto.username}`);
+    //1. check if user already exists
+    const existingUser = await this.userRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (existingUser) {
+      throw new ConflictException(
+        `User with email ${dto.email} already exists`,
+      );
+    }
+    //2. generate password hash
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    //3. create user
     const user = this.userRepository.create({
       username: dto.username,
       email: dto.email,
-      password: dto.password,
+      password: passwordHash,
     });
     return await this.userRepository.save(user);
   }
 
   async login(dto: LoginUserDto): Promise<User | null> {
-    this.logger.log(`Login user: ${dto.username}`);
+    this.logger.debug(`Login user: ${dto.username}`);
     const user = await this.userRepository.findOne({
       where: { username: dto.username, password: dto.password },
     });
