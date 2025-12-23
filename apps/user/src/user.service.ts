@@ -1,4 +1,10 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
@@ -42,10 +48,22 @@ export class UserService {
 
   async login(dto: LoginUserDto): Promise<User | null> {
     this.logger.debug(`Login user: ${dto.username}`);
+    //1. check if user exists
     const user = await this.userRepository.findOne({
-      where: { username: dto.username, password: dto.password },
+      where: { username: dto.username },
     });
-    return user || null;
+    if (!user) {
+      this.logger.warn('User not found', dto.username);
+      throw new NotFoundException('Invalid credentials');
+    }
+    //2. check if password is correct
+    const isPasswordCorrect = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordCorrect) {
+      this.logger.warn('Invalid password for user', dto.username);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return user;
   }
 
   async getInfo(userId: number): Promise<User | null> {

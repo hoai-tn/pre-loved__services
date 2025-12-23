@@ -4,9 +4,11 @@ import {
   Get,
   Param,
   Post,
+  Res,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { LoginUserDto, RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
@@ -29,8 +31,18 @@ export class UserController {
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({ status: 200, description: 'Login successful.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async login(@Body() dto: LoginUserDto) {
-    return await this.userService.login(dto);
+  async login(
+    @Body(ValidationPipe) dto: LoginUserDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { user, authToken } = await this.userService.login(dto);
+    response.cookie('refresh_token', authToken.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+      sameSite: 'strict',
+    });
+    return { user, accessToken: authToken.accessToken };
   }
   @Get('all')
   @ApiOperation({ summary: 'Get all users' })

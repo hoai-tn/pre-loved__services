@@ -1,10 +1,11 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { GatewayModule } from './gateway.module';
-import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
+import * as dotenv from 'dotenv';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptor/response.interceptor';
-import { ValidationPipe } from '@nestjs/common';
+import { GatewayModule } from './gateway.module';
 
 async function bootstrap() {
   dotenv.config();
@@ -15,6 +16,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  const cookieSecret = process.env.JWT_SECRET || 'DefaultSecret';
+  app.use(cookieParser(cookieSecret));
+
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.enableCors();

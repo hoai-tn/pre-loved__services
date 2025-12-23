@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { RpcException } from '@nestjs/microservices';
 import { TokenPayloadDto } from '../dto';
+import { AuthUserCreateDto } from '../dto/auth-user-create.dto';
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
@@ -16,14 +17,10 @@ export class TokenKeyService {
     private readonly configService: ConfigService,
   ) {}
 
-  async generateTokenKey(
-    userAuthId: string,
-    userId: string,
-  ): Promise<AuthTokens> {
-    const payload = {
-      tid: userAuthId,
-      sub: userId,
-    };
+  async generateTokenKey(payload: AuthUserCreateDto): Promise<AuthTokens> {
+    this.logger.debug(
+      `[TokenKeyService] Generating token key for user: ${JSON.stringify(payload)}`,
+    );
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_SECRET'),
       algorithm: 'HS256',
@@ -34,15 +31,6 @@ export class TokenKeyService {
       algorithm: 'HS256',
       expiresIn: '7d',
     });
-
-    // Store the new refresh token in database
-    // await this.prismaService.userAuth.update({
-    //   where: { id: userAuthId },
-    //   data: {
-    //     refreshToken,
-    //     lastSuccessfulLoginAt: new Date(),
-    //   },
-    // });
 
     return {
       accessToken,
