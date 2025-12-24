@@ -28,4 +28,9 @@ export class AuthController {
     // });
     return tokenKey;
   }
+
+  @MessagePattern(AUTH_MESSAGE_PATTERNS.VALIDATE_ACCESS_TOKEN)
+  async validateAccessToken(payload: { token: string }) {
+    return await this.tokenKeyService.validateAccessToken(payload.token);
+  }
 }

@@ -6,7 +6,9 @@
 @baseUrl = http://localhost:3000/api
 @register = {{baseUrl}}/user/register
 @login = {{baseUrl}}/user/login
+@profile = {{baseUrl}}/user/profile
 
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWQiOjcsInN1YiI6ImhvYWlfbmFydF81ayIsImlhdCI6MTc2NjU2MzM4OSwiZXhwIjoxNzY2NTY0Mjg5fQ.L5Fzb91Q4daYp14i2SEmlhrYlhmN8ThZw9P-IQbayDU
 ### register 
 POST {{register}}
 Content-Type: application/json
@@ -26,3 +28,7 @@ Content-Type: application/json
   "username": "hoai_nart_5k",
   "password": "123"
 }
+
+### Get Profile
+GET {{baseUrl}}/user/profile
+Authorization: Bearer {{token}}

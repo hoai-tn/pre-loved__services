@@ -9,6 +9,13 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+export interface TokenPayload {
+  tid: string;
+  sub: string;
+  iat?: number;
+  exp?: number;
+}
+
 @Injectable()
 export class TokenKeyService {
   private readonly logger = new Logger(TokenKeyService.name);
@@ -17,10 +24,15 @@ export class TokenKeyService {
     private readonly configService: ConfigService,
   ) {}
 
-  async generateTokenKey(payload: AuthUserCreateDto): Promise<AuthTokens> {
+  async generateTokenKey(authUser: AuthUserCreateDto): Promise<AuthTokens> {
     this.logger.debug(
-      `[TokenKeyService] Generating token key for user: ${JSON.stringify(payload)}`,
+      `[TokenKeyService] Generating token key for user: ${JSON.stringify(authUser)}`,
     );
+    const payload = {
+      tid: authUser.userId,
+      sub: authUser.username,
+      iat: Math.floor(Date.now() / 1000),
+    };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_SECRET'),
       algorithm: 'HS256',

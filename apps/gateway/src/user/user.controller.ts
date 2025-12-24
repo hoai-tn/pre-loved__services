@@ -5,10 +5,19 @@ import {
   Param,
   Post,
   Res,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
+import { User } from '../common/decorators/user.decorator';
+import { AuthGuard } from '../common/guards/auth.guard';
 import { LoginUserDto, RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
@@ -49,6 +58,20 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'List all users.' })
   async getAllUsers() {
     return await this.userService.getAllUsers();
+  }
+
+  @Get('profile')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getProfile(@User() user: { tid: string; sub: string }) {
+    const userId = parseInt(user.tid, 10);
+    return await this.userService.getUserInfo(userId);
   }
 
   @Get(':id')

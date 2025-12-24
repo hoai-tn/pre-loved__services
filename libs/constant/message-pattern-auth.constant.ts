@@ -1,5 +1,6 @@
 export const AUTH_MESSAGE_PATTERNS = {
   CREATE_USER_AUTH_TOKEN: 'create-user-auth-token',
+  VALIDATE_ACCESS_TOKEN: 'validate-access-token',
 } as const;
 
 export type AuthMessagePattern =
