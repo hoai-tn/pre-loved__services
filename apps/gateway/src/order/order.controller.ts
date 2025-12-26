@@ -4,9 +4,13 @@ import {
   Get,
   Param,
   Post,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Role, Roles } from '../common/decorators/roles.decorator';
+import { User } from '../common/decorators/user.decorator';
+import { AuthGuard } from '../common/guards/auth.guard';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderService } from './order.service';
 
@@ -23,10 +27,25 @@ export class OrderController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
+  @Roles(Role.BUYER)
   @ApiOperation({ summary: 'Place a new order' })
   @ApiBody({ type: CreateOrderDto })
   @ApiResponse({ status: 201, description: 'Order created successfully' })
   async createOrder(@Body(ValidationPipe) payload: CreateOrderDto) {
     return await this.orderService.createOrder(payload);
+  }
+
+  @Post('test')
+  @UseGuards(AuthGuard)
+  @Roles(Role.BUYER)
+  @ApiOperation({ summary: 'Place a new order' })
+  @ApiBody({ type: CreateOrderDto })
+  @ApiResponse({ status: 201, description: 'Order created successfully' })
+  createOrderTest(
+    @User() user: { tid: string; sub: string },
+    @Body(ValidationPipe) payload: CreateOrderDto,
+  ) {
+    return { message: 'Order created successfully', data: { user, payload } };
   }
 }

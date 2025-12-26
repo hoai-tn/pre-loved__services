@@ -33,4 +33,11 @@ export class AuthController {
   async validateAccessToken(payload: { token: string }) {
     return await this.tokenKeyService.validateAccessToken(payload.token);
   }
+
+  @MessagePattern(AUTH_MESSAGE_PATTERNS.REFRESH_ACCESS_TOKEN)
+  async refreshAccessToken(payload: { refreshToken: string }) {
+    return await this.tokenKeyService.validateRefreshToken(
+      payload.refreshToken,
+    );
+  }
 }

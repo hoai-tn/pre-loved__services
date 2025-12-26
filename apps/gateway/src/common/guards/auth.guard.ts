@@ -6,6 +6,7 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { ClientProxy } from '@nestjs/microservices';
 import { TokenPayload } from 'apps/auth/src/token-key/token-key.service';
 import { Request } from 'express';
@@ -24,14 +25,18 @@ export class AuthGuard implements CanActivate {
   constructor(
     @Inject(NAME_SERVICE_TCP.AUTH_SERVICE)
     private readonly authClient: ClientProxy,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const role = this.reflector.get<string[]>('roles', context.getHandler());
+    this.logger.log('role', role);
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('No token provided');
+      this.logger.error('No token provided');
+      throw new UnauthorizedException('Unauthorized');
     }
 
     try {
@@ -48,7 +53,7 @@ export class AuthGuard implements CanActivate {
       return true;
     } catch (error) {
       this.logger.error('Token validation failed', error);
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException('Unauthorized');
     }
   }
 

@@ -8,7 +8,7 @@
 @login = {{baseUrl}}/user/login
 @profile = {{baseUrl}}/user/profile
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWQiOjcsInN1YiI6ImhvYWlfbmFydF81ayIsImlhdCI6MTc2NjU2MzM4OSwiZXhwIjoxNzY2NTY0Mjg5fQ.L5Fzb91Q4daYp14i2SEmlhrYlhmN8ThZw9P-IQbayDU
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWQiOjcsInN1YiI6ImhvYWlfbmFydF81ayIsImlhdCI6MTc2NjcyMDk5NCwiZXhwIjoxNzY2NzIxODk0fQ.TBoqCrz5T9YKeO0grVX1PRPamC-CMH585Z8g1llaJPc
 ### register 
 POST {{register}}
 Content-Type: application/json
@@ -32,3 +32,17 @@ Content-Type: application/json
 ### Get Profile
 GET {{baseUrl}}/user/profile
 Authorization: Bearer {{token}}
+
+
+### Test Order API
+POST {{baseUrl}}/orders/test
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": 1,
+  "items": [
+    { "productId": "2", "quantity": 1 },
+    { "productId": "1", "quantity": 3 }
+  ]
+}
