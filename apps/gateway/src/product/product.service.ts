@@ -112,12 +112,6 @@ export class ProductService {
           ),
       );
 
-      // Debug logging
-      this.logger.debug(
-        `Raw response from product service:`,
-        JSON.stringify(response, null, 2),
-      );
-
       // Extract products from response structure
       const products = response?.items || response?.data || response || [];
       this.logger.debug(

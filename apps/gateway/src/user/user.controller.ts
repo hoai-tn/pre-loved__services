@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Req,
   Res,
   UseGuards,
   ValidationPipe,
@@ -15,12 +16,15 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { User } from '../common/decorators/user.decorator';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { LoginUserDto, RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
+const COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days
+const COOKIE_SAME_SITE =
+  process.env.NODE_ENV === 'production' ? 'none' : 'none';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
@@ -45,11 +49,14 @@ export class UserController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const { user, authToken } = await this.userService.login(dto);
+
+    console.log({ refreshToken: authToken.refreshToken });
+
     response.cookie('refresh_token', authToken.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 15 * 60 * 1000, // 15 minutes
-      sameSite: 'strict',
+      maxAge: COOKIE_MAX_AGE,
+      path: '/',
     });
     return { user, accessToken: authToken.accessToken };
   }
@@ -80,5 +87,26 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'User not found.' })
   async getUserInfo(@Param('id') id: number) {
     return await this.userService.getUserInfo(id);
+  }
+
+  @Post('refresh-token')
+  @ApiOperation({ summary: 'Refresh token' })
+  @ApiResponse({ status: 200, description: 'Token refreshed successfully.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async refreshToken(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const refreshToken = req.cookies['refresh_token'] as string;
+
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.userService.refreshToken(refreshToken);
+    response.cookie('refresh_token', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: COOKIE_MAX_AGE,
+      path: '/',
+    });
+    return { accessToken };
   }
 }

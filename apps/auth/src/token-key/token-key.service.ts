@@ -24,7 +24,9 @@ export class TokenKeyService {
     private readonly configService: ConfigService,
   ) {}
 
-  async generateTokenKey(authUser: AuthUserCreateDto): Promise<AuthTokens> {
+  async generateTokenKey(
+    authUser: Omit<AuthUserCreateDto, 'email'>,
+  ): Promise<AuthTokens> {
     this.logger.debug(
       `[TokenKeyService] Generating token key for user: ${JSON.stringify(authUser)}`,
     );
@@ -108,8 +110,11 @@ export class TokenKeyService {
       // }
 
       // Use refresh token rotation for enhanced security
-      // const tokens = await this.generateTokenKey(userAuth.id, userAuth.userId);
-      // return tokens;
+      const tokens = await this.generateTokenKey({
+        userId: Number(payload.tid),
+        username: payload.sub,
+      });
+      return tokens;
     } catch (error) {
       this.logger.error('Error validating refresh token', error);
       throw error;

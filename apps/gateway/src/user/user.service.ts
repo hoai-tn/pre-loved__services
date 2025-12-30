@@ -70,6 +70,27 @@ export class UserService {
     }
   }
 
+  async refreshToken(refreshToken: string) {
+    try {
+      return await firstValueFrom<AuthTokens>(
+        this.authClient
+          .send<AuthTokens>(AUTH_MESSAGE_PATTERNS.REFRESH_ACCESS_TOKEN, {
+            refreshToken,
+          })
+          .pipe(
+            timeout(10000),
+            catchError((error: unknown) => throwError(() => error)),
+          ),
+      );
+    } catch (error) {
+      MicroserviceErrorHandler.handleError(
+        error,
+        'refresh token',
+        'Auth Service',
+      );
+    }
+  }
+
   async getUserInfo(userId: number) {
     try {
       return await firstValueFrom<unknown>(
