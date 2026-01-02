@@ -40,4 +40,9 @@ export class AuthController {
       payload.refreshToken,
     );
   }
+
+  @MessagePattern(AUTH_MESSAGE_PATTERNS.LOGOUT)
+  async logout(payload: { refreshToken: string }) {
+    return await this.tokenKeyService.revokeToken(payload.refreshToken);
+  }
 }

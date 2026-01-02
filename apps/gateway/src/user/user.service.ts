@@ -69,6 +69,25 @@ export class UserService {
       MicroserviceErrorHandler.handleError(error, 'login user', 'User Service');
     }
   }
+  async userLogout(refreshToken: string) {
+    try {
+      this.logger.debug(`Revoking token: ${refreshToken}`);
+      return await firstValueFrom<unknown>(
+        this.authClient
+          .send(AUTH_MESSAGE_PATTERNS.LOGOUT, { refreshToken })
+          .pipe(
+            timeout(10000),
+            catchError((error: unknown) => throwError(() => error)),
+          ),
+      );
+    } catch (error) {
+      MicroserviceErrorHandler.handleError(
+        error,
+        'logout user',
+        'Auth Service',
+      );
+    }
+  }
 
   async refreshToken(refreshToken: string) {
     try {

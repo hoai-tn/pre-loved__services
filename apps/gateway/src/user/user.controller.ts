@@ -6,6 +6,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -60,6 +61,24 @@ export class UserController {
     });
     return { user, accessToken: authToken.accessToken };
   }
+
+  @Post('/logout')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({ status: 200, description: 'Logout successful.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const refreshToken = req.cookies['refresh_token'] as string | null;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+    response.clearCookie('refresh_token');
+    return await this.userService.userLogout(refreshToken);
+  }
+
   @Get('all')
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List all users.' })
