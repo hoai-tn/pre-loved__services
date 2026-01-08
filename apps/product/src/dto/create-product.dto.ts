@@ -1,13 +1,13 @@
+import { Type } from 'class-transformer';
 import {
-  IsString,
+  IsBoolean,
+  IsIn,
   IsNumber,
   IsOptional,
-  IsBoolean,
-  Min,
+  IsString,
   Max,
-  IsIn,
+  Min,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class CreateProductDto {
   @IsString()
@@ -43,7 +43,7 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  userId?: number; // ID của người tạo sản phẩm
+  userId?: number; // ID of the product creator
 
   @IsOptional()
   @IsString()

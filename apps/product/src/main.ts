@@ -1,9 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { ProductModule } from './product.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { ValidationPipe } from '@nestjs/common';
 import { PORT_TCP } from 'libs/constant/port-tcp.constant';
 import { AllRpcExceptionFilter } from './filters/rpc-exception.filter';
+import { ProductModule } from './product.module';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -12,7 +11,7 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: 'localhost',
-        port: PORT_TCP.PRODUCT_TCP_PORT, // Port phải khớp với cấu hình ở Gateway
+        port: PORT_TCP.PRODUCT_TCP_PORT,
       },
     },
   );

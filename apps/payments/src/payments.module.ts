@@ -9,7 +9,6 @@ import { PaymentsService } from './payments.service';
     PostgresModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      // Quan trọng: Chỉ định đúng đường dẫn tới file .env của nodeB
       envFilePath: './local/nodeB/.env',
     }),
     RmqModule.register({ name: 'PAYMENTS_SERVICE' }),

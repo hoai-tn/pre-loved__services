@@ -21,10 +21,8 @@ export class RewardsController {
       `[REWARDS] Received event for order: ${JSON.stringify(data)}`,
     );
 
-    // Gọi service để xử lý nghiệp vụ cộng điểm thưởng
     await this.rewardsService.addRewards(data);
 
-    // // Xác nhận đã xử lý xong message để RabbitMQ xóa nó khỏi queue
     this.rmqService.ack(context);
     this.logger.log(
       `[REWARDS] Acknowledged event for order ${JSON.stringify(data)}`,

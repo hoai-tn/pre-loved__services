@@ -1,10 +1,10 @@
-import { NestFactory } from '@nestjs/core';
-import { OrdersModule } from './orders.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import * as dotenv from 'dotenv';
 import { PORT_TCP } from 'libs/constant/port-tcp.constant';
 import { AllRpcExceptionFilter } from './filters/rpc-exception.filter';
+import { OrdersModule } from './orders.module';
 
 async function bootstrap() {
   dotenv.config();
@@ -14,7 +14,7 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: 'localhost',
-        port: PORT_TCP.ORDERS_TCP_PORT, // Port phải khớp với cấu hình ở GatewayModule
+        port: PORT_TCP.ORDERS_TCP_PORT,
       },
     },
   );

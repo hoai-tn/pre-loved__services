@@ -8,7 +8,8 @@
 @login = {{baseUrl}}/user/login
 @profile = {{baseUrl}}/user/profile
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWQiOjcsInN1YiI6ImhvYWlfbmFydF81ayIsImlhdCI6MTc2NjcyMDk5NCwiZXhwIjoxNzY2NzIxODk0fQ.TBoqCrz5T9YKeO0grVX1PRPamC-CMH585Z8g1llaJPc
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWQiOjcsInN1YiI6ImhvYWlfbmFydF81ayIsImlhdCI6MTc2NzA2MjIxNiwiZXhwIjoxNzY3MDYzMTE2fQ.t6BLzx3P0xhCKQj8XGsnRi-Sjektx672tyIChblp0lA
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWQiOjcsInN1YiI6ImhvYWlfbmFydF81ayIsImlhdCI6MTc2NzA2Nzc3MCwiZXhwIjoxNzY3NjcyNTcwfQ.K_kWAdIRutiP61L3Tpn6YvL5LLaKl2tTkwhFdS4IkMk; Path=/; HttpOnly
 ### register 
 POST {{register}}
 Content-Type: application/json
@@ -33,6 +34,11 @@ Content-Type: application/json
 GET {{baseUrl}}/user/profile
 Authorization: Bearer {{token}}
 
+### Refresh Token
+POST {{baseUrl}}/user/refresh-token
+Content-Type: application/json
+Authorization: Bearer {{token}}
+Cookie: refresh_token={{refreshToken}}
 
 ### Test Order API
 POST {{baseUrl}}/orders/test
@@ -46,3 +52,4 @@ Authorization: Bearer {{token}}
     { "productId": "1", "quantity": 3 }
   ]
 }
+

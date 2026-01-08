@@ -46,7 +46,7 @@ export class Product {
   categoryId: number;
 
   @Column({ type: 'bigint', nullable: true, name: 'user_id' })
-  userId?: number; // ID của người tạo sản phẩm
+  userId?: number; // ID of the product creator
 
   @Column({ type: 'varchar', length: 1000, nullable: true, name: 'image_url' })
   imageUrl?: string;
@@ -85,7 +85,7 @@ export class Product {
   condition?: string; // 'new', 'used', 'refurbished'
 
   @Column({ type: 'text', nullable: true, name: 'seller_notes' })
-  sellerNotes?: string; // Ghi chú từ người bán
+  sellerNotes?: string; // Notes from the seller
 
   // Rating system
   @Column({

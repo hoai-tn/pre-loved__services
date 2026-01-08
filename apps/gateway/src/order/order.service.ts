@@ -71,14 +71,14 @@ export class OrderService {
     if (isNaN(uid)) {
       throw new Error('Invalid userId');
     }
-    // // Gọi order service lấy orders
+    // // Call order service to get orders
     // const orders = await firstValueFrom(
     // 	this.ordersClient.send(ORDER_MESSAGE_PATTERN.GET_ORDERS_BY_USER, uid).pipe(
     // 		timeout(5000),
     // 		catchError(err => { throw new Error('Orders service unavailable'); }),
     // 	),
     // );
-    // // Gọi user service lấy user info
+    // // Call user service to get user info
     // const user = await firstValueFrom(
     // 	this.userClient.send({ cmd: USER_MESSAGE_PATTERN.GET_USER_INFO }, uid).pipe(
     // 		timeout(5000),
@@ -89,7 +89,7 @@ export class OrderService {
     // await this.redisService.set(cacheKey, JSON.stringify(result), 300);
     // return result;
 
-    // Aggregator: gọi các service con và tổng hợp kết quả
+    // Aggregator: call child services and aggregate results
     const [orders, user] = await Promise.all<unknown[]>([
       firstValueFrom<unknown>(
         this.ordersClient

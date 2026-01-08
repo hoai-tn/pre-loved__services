@@ -20,7 +20,7 @@ async function bootstrap() {
     }),
   );
 
-  // // // Kết nối microservice, lắng nghe trên queue 'PAYMENTS_SERVICE_QUEUE'
+  // Connect microservice, listen on queue 'PAYMENTS_SERVICE_QUEUE'
   const rmqService = app.get<RmqService>(RmqService);
   // app.connectMicroservice(rmqService.getOptions('PAYMENTS_SERVICE_QUEUE'));
   app.connectMicroservice(

@@ -13,11 +13,11 @@ import { UserModule } from './user/user.module';
   imports: [
     ClientsModule.register([
       {
-        name: NAME_SERVICE_TCP.ORDERS_SERVICE, // Tên token để inject
+        name: NAME_SERVICE_TCP.ORDERS_SERVICE,
         transport: Transport.TCP,
         options: {
-          host: 'localhost', // Hoặc địa chỉ IP của Orders service
-          port: PORT_TCP.ORDERS_TCP_PORT, // Port mà Orders service sẽ lắng nghe
+          host: 'localhost',
+          port: PORT_TCP.ORDERS_TCP_PORT,
         },
       },
       {

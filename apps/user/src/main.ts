@@ -13,7 +13,7 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: 'localhost',
-        port: PORT_TCP.USER_TCP_PORT, // Port phải khớp với cấu hình ở GatewayModule
+        port: PORT_TCP.USER_TCP_PORT,
       },
     },
   );

@@ -122,10 +122,9 @@ export class InventoryController {
       `[INVENTORY] Received event for order: ${JSON.stringify(data)}`,
     );
 
-    // Gọi service để xử lý nghiệp vụ inventory
     await this.inventoryService.handleOrderCreated(data);
 
-    // Xác nhận đã xử lý xong message để RabbitMQ xóa nó khỏi queue
+    // Acknowledge that the message has been processed so RabbitMQ can remove it from the queue
     this.rmqService.ack(context);
     this.logger.log(
       `[INVENTORY] Acknowledged event for order ${JSON.stringify(data)}`,
