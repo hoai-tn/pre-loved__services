@@ -1,11 +1,36 @@
 import {
-  Catch,
   ArgumentsHost,
+  Catch,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
 import { BaseRpcExceptionFilter, RpcException } from '@nestjs/microservices';
+
+/**
+ * Interface for database-related errors
+ */
+interface DatabaseError {
+  code?: string;
+  message?: string;
+  constructor?: { name?: string };
+}
+
+/**
+ * Interface for validation errors
+ */
+interface ValidationError {
+  message?: string | string[];
+  constructor?: { name?: string };
+}
+
+/**
+ * Interface for HTTP exception response
+ */
+interface ErrorResponse {
+  message?: string;
+  error?: string;
+}
 
 /**
  * Global RPC Exception Filter for Inventory Service
@@ -15,11 +40,17 @@ import { BaseRpcExceptionFilter, RpcException } from '@nestjs/microservices';
 export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
   private readonly logger = new Logger(AllRpcExceptionFilter.name);
 
-  catch(exception: any, host: ArgumentsHost) {
-    this.logger.debug(
-      `Handling exception: ${exception?.constructor?.name}`,
-      exception?.message,
-    );
+  catch(exception: unknown, host: ArgumentsHost) {
+    const exceptionName =
+      exception && typeof exception === 'object' && 'constructor' in exception
+        ? (exception.constructor as { name?: string })?.name
+        : 'Unknown';
+    const exceptionMessage =
+      exception && typeof exception === 'object' && 'message' in exception
+        ? String((exception as { message?: unknown }).message)
+        : undefined;
+
+    this.logger.debug(`Handling exception: ${exceptionName}`, exceptionMessage);
 
     // If it's already an RpcException, pass it through
     if (exception instanceof RpcException) {
@@ -32,12 +63,23 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
       const status = exception.getStatus();
       const response = exception.getResponse();
 
+      let message: string;
+      if (typeof response === 'string') {
+        message = response;
+      } else if (
+        response &&
+        typeof response === 'object' &&
+        'message' in response
+      ) {
+        const errorResponse = response as ErrorResponse;
+        message = errorResponse.message || exception.message;
+      } else {
+        message = exception.message;
+      }
+
       const rpcException = new RpcException({
         statusCode: status,
-        message:
-          typeof response === 'string'
-            ? response
-            : (response as any)?.message || exception.message,
+        message,
         error: this.getErrorName(status),
         timestamp: new Date().toISOString(),
       });
@@ -51,8 +93,13 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
     // Handle TypeORM/Database errors
     if (this.isDatabaseError(exception)) {
       const rpcException = this.handleDatabaseError(exception);
+      const errorValue = rpcException.getError();
+      const errorString =
+        typeof errorValue === 'string'
+          ? errorValue
+          : JSON.stringify(errorValue);
       this.logger.debug(
-        `Converted Database error to RpcException: ${rpcException.getError()}`,
+        `Converted Database error to RpcException: ${errorString}`,
       );
       return super.catch(rpcException, host);
     }
@@ -60,16 +107,29 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
     // Handle validation errors
     if (this.isValidationError(exception)) {
       const rpcException = this.handleValidationError(exception);
+      const errorValue = rpcException.getError();
+      const errorString =
+        typeof errorValue === 'string'
+          ? errorValue
+          : JSON.stringify(errorValue);
       this.logger.debug(
-        `Converted Validation error to RpcException: ${rpcException.getError()}`,
+        `Converted Validation error to RpcException: ${errorString}`,
       );
       return super.catch(rpcException, host);
     }
 
     // Default: convert to RpcException with 500 status
+    const defaultMessage =
+      exception &&
+      typeof exception === 'object' &&
+      'message' in exception &&
+      typeof (exception as { message?: unknown }).message === 'string'
+        ? (exception as { message: string }).message
+        : 'Internal server error';
+
     const rpcException = new RpcException({
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: exception?.message || 'Internal server error',
+      message: defaultMessage,
       error: 'Internal Server Error',
       timestamp: new Date().toISOString(),
     });
@@ -84,42 +144,72 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
   /**
    * Check if error is a database-related error
    */
-  private isDatabaseError(exception: any): boolean {
+  private isDatabaseError(exception: unknown): exception is DatabaseError {
+    if (!exception || typeof exception !== 'object') {
+      return false;
+    }
+
+    const dbError = exception as DatabaseError;
+    const constructorName =
+      dbError.constructor && typeof dbError.constructor === 'object'
+        ? dbError.constructor.name
+        : undefined;
+    const message = typeof dbError.message === 'string' ? dbError.message : '';
+    const code = typeof dbError.code === 'string' ? dbError.code : undefined;
+
     return (
-      exception?.constructor?.name === 'QueryFailedError' ||
-      exception?.code === '23505' || // PostgreSQL unique violation
-      exception?.code === '23502' || // PostgreSQL not null violation
-      exception?.code === '23503' || // PostgreSQL foreign key violation
-      exception?.message?.includes('duplicate key value violates') ||
-      exception?.message?.includes('unique constraint') ||
-      exception?.message?.includes('foreign key constraint')
+      constructorName === 'QueryFailedError' ||
+      code === '23505' || // PostgreSQL unique violation
+      code === '23502' || // PostgreSQL not null violation
+      code === '23503' || // PostgreSQL foreign key violation
+      message.includes('duplicate key value violates') ||
+      message.includes('unique constraint') ||
+      message.includes('foreign key constraint')
     );
   }
 
   /**
    * Check if error is a validation error
    */
-  private isValidationError(exception: any): boolean {
+  private isValidationError(exception: unknown): exception is ValidationError {
+    if (!exception || typeof exception !== 'object') {
+      return false;
+    }
+
+    const validationError = exception as ValidationError;
+    const constructorName =
+      validationError.constructor &&
+      typeof validationError.constructor === 'object'
+        ? validationError.constructor.name
+        : undefined;
+    const message = validationError.message;
+    const messageString =
+      typeof message === 'string'
+        ? message
+        : Array.isArray(message)
+          ? message.join(' ')
+          : '';
+
     return (
-      exception?.constructor?.name === 'ValidationError' ||
-      Array.isArray(exception?.message) ||
-      exception?.message?.includes('should not be empty') ||
-      exception?.message?.includes('must be') ||
-      exception?.message?.includes('is not valid')
+      constructorName === 'ValidationError' ||
+      Array.isArray(message) ||
+      messageString.includes('should not be empty') ||
+      messageString.includes('must be') ||
+      messageString.includes('is not valid')
     );
   }
 
   /**
    * Handle database errors and convert to appropriate RpcException
    */
-  private handleDatabaseError(exception: any): RpcException {
-    const message = exception.message || '';
+  private handleDatabaseError(exception: DatabaseError): RpcException {
+    const message =
+      typeof exception.message === 'string' ? exception.message : '';
+    const code =
+      typeof exception.code === 'string' ? exception.code : undefined;
 
     // Handle unique constraint violations
-    if (
-      message.includes('duplicate key value violates') ||
-      exception.code === '23505'
-    ) {
+    if (message.includes('duplicate key value violates') || code === '23505') {
       let userMessage = 'Duplicate entry found';
 
       // Specific handling for SKU constraint (inventory has unique SKU too)
@@ -147,10 +237,7 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
     }
 
     // Handle NOT NULL violations
-    if (
-      message.includes('null value in column') ||
-      exception.code === '23502'
-    ) {
+    if (message.includes('null value in column') || code === '23502') {
       return new RpcException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Required field is missing',
@@ -160,10 +247,7 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
     }
 
     // Handle foreign key violations
-    if (
-      message.includes('foreign key constraint') ||
-      exception.code === '23503'
-    ) {
+    if (message.includes('foreign key constraint') || code === '23503') {
       return new RpcException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Referenced record does not exist',
@@ -197,12 +281,12 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
   /**
    * Handle validation errors
    */
-  private handleValidationError(exception: any): RpcException {
+  private handleValidationError(exception: ValidationError): RpcException {
     let message = 'Validation failed';
 
     if (Array.isArray(exception.message)) {
       message = exception.message.join(', ');
-    } else if (exception.message) {
+    } else if (typeof exception.message === 'string') {
       message = exception.message;
     }
 
@@ -225,7 +309,7 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
   /**
    * Get error name based on HTTP status code
    */
-  private getErrorName(status: number): string {
+  private getErrorName(status: HttpStatus): string {
     switch (status) {
       case HttpStatus.BAD_REQUEST:
         return 'Bad Request';

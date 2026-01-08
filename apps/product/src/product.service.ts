@@ -10,6 +10,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateInventoryDto } from 'apps/gateway/src/inventory/dto/create-inventory.dto';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
+import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
 import { firstValueFrom } from 'rxjs';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateBrandDto } from './dto/create-brand.dto';
@@ -32,7 +33,7 @@ export class ProductService {
     private readonly brandRepository: Repository<Brand>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-    @Inject('INVENTORY_SERVICE')
+    @Inject(NAME_SERVICE_TCP.INVENTORY_SERVICE)
     private readonly inventoryService: ClientProxy,
   ) {}
 
@@ -42,6 +43,7 @@ export class ProductService {
     const existingProduct = await this.productRepository.findOne({
       where: { sku: createProductDto.sku },
     });
+
     if (existingProduct) {
       throw new ConflictException('Product with this SKU already exists');
     }

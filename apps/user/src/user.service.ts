@@ -1,3 +1,4 @@
+import { UserResponseDto } from '@app/common/dto';
 import {
   ConflictException,
   Injectable,
@@ -66,9 +67,13 @@ export class UserService {
     return user;
   }
 
-  async getInfo(userId: number): Promise<User | null> {
+  async getInfo(userId: number): Promise<UserResponseDto | null> {
     this.logger.log(`Get info for userId: ${userId}`);
-    return await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      return null;
+    }
+    return user;
   }
 
   getServiceInfo(): string {

@@ -21,12 +21,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5000',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+  app.enableCors();
   app.setGlobalPrefix('api');
   const config = new DocumentBuilder()
     .setTitle('Ecommerce API')
