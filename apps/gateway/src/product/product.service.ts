@@ -157,7 +157,7 @@ export class ProductService {
           )
           .pipe(
             timeout(10000),
-            catchError(error => throwError(() => error)),
+            catchError((error: unknown) => throwError(() => error)),
           ),
       );
 
@@ -187,7 +187,7 @@ export class ProductService {
           )
           .pipe(
             timeout(10000),
-            catchError(error => throwError(() => error)),
+            catchError((error: unknown) => throwError(() => error)),
           ),
       );
     } catch (error) {
@@ -212,7 +212,7 @@ export class ProductService {
           })
           .pipe(
             timeout(10000),
-            catchError(error => throwError(() => error)),
+            catchError((error: unknown) => throwError(() => error)),
           ),
       );
     } catch (error) {
