@@ -1,18 +1,26 @@
 version: '3.8'
 services:
-  # mysql_orders:
-  #   image: mysql:8.0
-  #   container_name: mysql_orders
-  #   restart: unless-stopped
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: root1234
-  #     MYSQL_DATABASE: orders_db
-  #     MYSQL_USER: appuser
-  #     MYSQL_PASSWORD: apppass
-  #   ports:
-  #     - '3306:3306'
-  #   volumes:
-  #     - ./local/docker-init/mysql:/docker-entrypoint-initdb.d:ro
+  mysql_app-host-1:
+    image: mysql:9.0.0
+    container_name: mysql_app-host-1
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456 #? root password
+      MYSQL_DATABASE: pre-loved_app_host_1_db #? database name
+      MYSQL_USER: appuser #? user name
+      MYSQL_PASSWORD: 123456 #? user password
+    ports:
+      - '3309:3306'
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d
+    networks:
+      - pre-loved-net
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # postgres_inventory:
   #   image: postgres:15
@@ -42,6 +50,8 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
       RABBITMQ_DEFAULT_VHOST: /rabbit-pre-loved
+    networks:
+      - pre-loved-net
     restart: unless-stopped
   elasticsearch:
     image: elasticsearch:8.17.1
@@ -80,11 +90,20 @@ services:
     ports:
       - '5044:5044'
     volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/pipeline:/usr/share/logstash/pipeline/
+      - ./logstash/drivers:/usr/share/logstash/drivers/
+    env_file:
+      - ./local/nodeA/.env
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     depends_on:
       - elasticsearch
+      - mysql_app-host-1
     networks:
       - pre-loved-net
     restart: unless-stopped
