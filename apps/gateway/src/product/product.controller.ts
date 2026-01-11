@@ -1,38 +1,41 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Delete,
   Body,
-  Param,
-  Query,
-  ParseIntPipe,
+  Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
 import {
-  CreateProductDto,
-  UpdateProductDto,
-  GetProductsQueryDto,
-  CreateBrandDto,
-  CreateCategoryDto,
-} from './dto/product-simple.dto';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
   ApiBody,
+  ApiOperation,
   ApiParam,
   ApiQuery,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
-
+import {
+  CreateBrandDto,
+  CreateCategoryDto,
+  CreateProductDto,
+  GetProductsQueryDto,
+  UpdateProductDto,
+} from './dto/product-simple.dto';
+import { ProductService } from './product.service';
+import { ProductSearchService } from './services/product-search.service';
 @ApiTags('Products')
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly productSearchService: ProductSearchService,
+  ) {}
 
   // ============================================================================
   // PRODUCT ENDPOINTS
@@ -73,7 +76,7 @@ export class ProductController {
     description: 'Bad Request - Missing search query.',
   })
   async searchProducts(@Query(ValidationPipe) query: GetProductsQueryDto) {
-    return await this.productService.searchProducts(query);
+    return await this.productSearchService.searchProducts(query);
   }
 
   @Get('category/:categoryId')

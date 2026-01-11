@@ -30,3 +30,11 @@ export interface IProduct {
   brand?: IBrand;
   category: ICategory;
 }
+
+export interface ISearchProductsResponse {
+  total: number;
+  items: IProduct[];
+  page: number;
+  limit: number;
+  totalPages: number;
+}

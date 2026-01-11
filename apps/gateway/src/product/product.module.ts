@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
+import { elasticsearchConfig } from '../configs/elasticsearch.config';
 import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
-import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
+import { ProductSearchService } from './services/product-search.service';
 
 @Module({
   imports: [
+    ElasticsearchModule.register(elasticsearchConfig),
     ClientsModule.register([
       {
         name: NAME_SERVICE_TCP.PRODUCT_SERVICE,
@@ -34,7 +38,7 @@ import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
     ]),
   ],
   controllers: [ProductController],
-  providers: [ProductService],
+  providers: [ProductService, ProductSearchService],
   exports: [ProductService],
 })
 export class ProductModule {}

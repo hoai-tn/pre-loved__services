@@ -1,9 +1,7 @@
 import { CachedModule } from '@app/cached';
 import { Module } from '@nestjs/common';
-import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
-import { elasticsearchConfig } from './configs/elasticsearch.config';
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { InventoryModule } from './inventory/inventory.module';
@@ -13,7 +11,6 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    ElasticsearchModule.register(elasticsearchConfig),
     ClientsModule.register([
       {
         name: NAME_SERVICE_TCP.ORDERS_SERVICE,
