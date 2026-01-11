@@ -1,7 +1,7 @@
 [mysqld]
-# Allow clients to retrieve public keys for caching_sha2_password authentication
-# This helps with JDBC connections from Logstash and other applications
-default_authentication_plugin=caching_sha2_password
+# Note: default_authentication_plugin is not supported in MySQL 9.0+
+# MySQL 9.0 uses caching_sha2_password by default
+# This configuration helps with JDBC connections from Logstash and other applications
 
 [client]
 default-character-set=utf8mb4

@@ -30,10 +30,12 @@
     "start:nodeB": "concurrently -n INVENTORY,PAYMENTS,REWARDS -c yellow,magenta,cyan \"npm run start:inventory\" \"npm run start:payments\" \"npm run start:rewards\""
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^8.19.1",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/elasticsearch": "^11.1.0",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/microservices": "^11.1.7",
     "@nestjs/platform-express": "^11.0.1",
