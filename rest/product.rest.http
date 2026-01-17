@@ -330,7 +330,7 @@ GET {{baseUrl}}/products?page=1&limit=5&sortBy=price&sortOrder=ASC
 ### ========================================
 
 ### Search products by name/description/sku
-GET {{baseUrl}}/products/search?search=iPhone
+GET {{baseUrl}}/products/search?search=Iphone 17&sortBy=price&sortOrder=ASC&
 
 ### Search with multiple keywords
 GET {{baseUrl}}/products/search?search=Samsung Galaxy  

@@ -1,13 +1,13 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import {
-  IsString,
+  IsBoolean,
   IsNumber,
   IsOptional,
-  IsBoolean,
-  Min,
+  IsString,
   Max,
+  Min,
 } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ============================================================================
 // PRODUCT DTOs
@@ -481,12 +481,12 @@ export class GetProductsQueryDto {
 
   @ApiPropertyOptional({
     description: 'Sort by field',
-    example: 'createdAt',
-    default: 'createdAt',
+    example: 'created_at',
+    default: 'created_at',
   })
   @IsOptional()
   @IsString()
-  sortBy?: string = 'createdAt';
+  sortBy?: string = 'created_at';
 
   @ApiPropertyOptional({
     description: 'Sort order',
