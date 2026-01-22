@@ -15,7 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: process.env.PG_USERNAME || 'postgres',
       password: process.env.PG_PASSWORD || 'postgres',
       database: process.env.PG_DATABASE || 'inventory',
-      ssl: { rejectUnauthorized: false },
+      ssl: false,
       autoLoadEntities: true,
       synchronize: true, // Re-enabled after fixing entity issues
       logging: false,
@@ -23,4 +23,4 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   ],
   exports: [TypeOrmModule],
 })
-export class PostgresDatabaseModule {}
+export class PostgresDatabaseModule { }

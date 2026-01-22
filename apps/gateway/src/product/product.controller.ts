@@ -35,7 +35,7 @@ export class ProductController {
   constructor(
     private readonly productService: ProductService,
     private readonly productSearchService: ProductSearchService,
-  ) {}
+  ) { }
 
   // ============================================================================
   // PRODUCT ENDPOINTS
@@ -62,7 +62,7 @@ export class ProductController {
     description: 'Bad Request - Invalid query parameters.',
   })
   async getAllProducts(@Query(ValidationPipe) query: GetProductsQueryDto) {
-    return await this.productService.getAllProducts(query);
+    return await this.productSearchService.searchProducts(query);
   }
 
   @Get('search')

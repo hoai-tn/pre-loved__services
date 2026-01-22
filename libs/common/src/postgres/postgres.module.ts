@@ -13,7 +13,7 @@ import { Pool } from 'pg';
           database: process.env.PG_DATABASE || 'inventory_db',
           user: process.env.PG_USERNAME || 'root',
           password: process.env.PG_PASSWORD || 'root1234',
-          ssl: { rejectUnauthorized: false },
+          // ssl: { rejectUnauthorized: false },
           max: Number(process.env.PG_POOL_SIZE) || 10,
           idleTimeoutMillis: 30000,
           connectionTimeoutMillis: 3000,
@@ -25,4 +25,4 @@ import { Pool } from 'pg';
   ],
   exports: ['PG_POOL'],
 })
-export class PostgresModule {}
+export class PostgresModule { }

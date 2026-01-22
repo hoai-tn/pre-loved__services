@@ -19,7 +19,10 @@ export class ProductSearchService {
     if (!query) {
       return { total: 0, items: [], page: 1, limit: 10, totalPages: 1 };
     }
-    this.logger.debug(`[ProductSearchService] Searching products with query:`, query);
+    this.logger.debug(
+      `[ProductSearchService] Searching products with query:`,
+      query,
+    );
     const queryBuilder: SearchRequest = {
       index: INDEX_NAME,
       _source: true, // Explicitly request source fields
@@ -31,14 +34,19 @@ export class ProductSearchService {
           fields: ['name^2', 'description'],
           type: 'best_fields',
           fuzziness: 'AUTO',
-        }
+        },
       };
     } else {
       // If no search query, match all documents
       queryBuilder.query = { match_all: {} };
     }
     if (query.sortBy) {
-      queryBuilder.sort = [{ [query.sortBy as keyof IProduct]: query.sortOrder === 'ASC' ? 'asc' : 'desc' }];
+      queryBuilder.sort = [
+        {
+          [query.sortBy as keyof IProduct]:
+            query.sortOrder === 'ASC' ? 'asc' : 'desc',
+        },
+      ];
     }
 
     // Set pagination - always set size and from
@@ -47,7 +55,10 @@ export class ProductSearchService {
     queryBuilder.from = (page - 1) * limit;
     queryBuilder.size = limit;
 
-    this.logger.debug(`[ProductSearchService] Query builder:`, JSON.stringify(queryBuilder, null, 2));
+    this.logger.debug(
+      `[ProductSearchService] Query builder:`,
+      JSON.stringify(queryBuilder, null, 2),
+    );
 
     const body = await this.elasticsearchService.search(queryBuilder);
     this.logger.debug(`[ProductSearchService] Search results:`, JSON.stringify(body, null, 2));
