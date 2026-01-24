@@ -1,16 +1,19 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { PRODUCT_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-product.constant';
+import { CategoryService } from './category.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsQueryDto } from './dto/get-products-query.dto';
-import { PRODUCT_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-product.constant';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductService } from './product.service';
 
 @Controller()
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    @Inject(CategoryService) private readonly categoryService: CategoryService) { }
 
   // ============================================================================
   // PRODUCT MESSAGE PATTERNS
@@ -100,11 +103,24 @@ export class ProductController {
 
   @MessagePattern(PRODUCT_MESSAGE_PATTERNS.CATEGORY_FIND_ALL)
   async findAllCategories() {
-    return this.productService.findAllCategories();
+    return this.categoryService.getAllCategories();
   }
 
   @MessagePattern(PRODUCT_MESSAGE_PATTERNS.CATEGORY_FIND_BY_ID)
   async findCategoryById(@Payload() id: number) {
     return this.productService.findCategoryById(id);
+  }
+
+  @MessagePattern(PRODUCT_MESSAGE_PATTERNS.CATEGORY_UPDATE)
+  async updateCategory(
+    @Payload() data: { id: number; updateCategoryDto: Partial<CreateCategoryDto> },
+  ) {
+    const { id, updateCategoryDto } = data;
+    return await this.productService.updateCategory(id, updateCategoryDto);
+  }
+
+  @MessagePattern(PRODUCT_MESSAGE_PATTERNS.CATEGORY_DELETE)
+  async deleteCategory(@Payload() id: number) {
+    return this.productService.deleteCategory(id);
   }
 }

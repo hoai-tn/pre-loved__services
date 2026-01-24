@@ -1,0 +1,54 @@
+### Get all categories
+GET http://localhost:3000/api/category
+
+### Create category - Electronics
+POST http://localhost:3000/api/category
+Content-Type: application/json
+
+{
+  "name": "Electronics",
+  "description": "Electronic devices and accessories",
+  "isActive": true
+}
+
+### Create category - Fashion
+POST http://localhost:3000/api/category
+Content-Type: application/json
+
+{
+  "name": "Fashion",
+  "description": "Clothing, shoes, and accessories",
+  "isActive": true
+}
+
+### Create category - Home & Garden
+POST http://localhost:3000/api/category
+Content-Type: application/json
+
+{
+  "name": "Home & Garden",
+  "description": "Furniture, decor, and garden supplies"
+}
+
+### Get category by ID (replace :id with actual ID)
+GET http://localhost:3000/api/category/1
+
+### Update category (replace :id with actual ID)
+PATCH http://localhost:3000/api/category/1
+Content-Type: application/json
+
+{
+  "name": "Electronics & Gadgets",
+  "description": "Updated description for electronics category"
+}
+
+### Update category active status
+PATCH http://localhost:3000/api/category/1
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+### Delete category (replace :id with actual ID)
+DELETE http://localhost:3000/api/category/1

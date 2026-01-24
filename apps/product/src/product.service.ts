@@ -35,7 +35,7 @@ export class ProductService {
     private readonly categoryRepository: Repository<Category>,
     @Inject(NAME_SERVICE_TCP.INVENTORY_SERVICE)
     private readonly inventoryService: ClientProxy,
-  ) {}
+  ) { }
 
   // Product methods
   async createProduct(createProductDto: CreateProductDto) {
@@ -301,5 +301,20 @@ export class ProductService {
       throw new NotFoundException('Category not found');
     }
     return category;
+  }
+
+  async updateCategory(
+    id: number,
+    updateCategoryDto: Partial<CreateCategoryDto>,
+  ): Promise<Category> {
+    const category = await this.findCategoryById(id);
+    Object.assign(category, updateCategoryDto);
+    return this.categoryRepository.save(category);
+  }
+
+  async deleteCategory(id: number): Promise<{ message: string }> {
+    const category = await this.findCategoryById(id);
+    await this.categoryRepository.remove(category);
+    return { message: `Category with ID ${id} deleted successfully` };
   }
 }

@@ -2,6 +2,7 @@ import { CachedModule } from '@app/cached';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
+import { CategoryModule } from './category/category.module';
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { InventoryModule } from './inventory/inventory.module';
@@ -57,10 +58,11 @@ import { UserModule } from './user/user.module';
     UserModule,
     OrderModule,
     ProductModule,
+    CategoryModule,
     CachedModule,
   ],
   controllers: [GatewayController],
   providers: [GatewayService],
   exports: [ClientsModule],
 })
-export class GatewayModule {}
+export class GatewayModule { }

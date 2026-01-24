@@ -32,14 +32,19 @@ export class ProductSearchService {
       queryBuilder.query = {
         multi_match: {
           query: query.search,
-          fields: ['name^2', 'description'],
+          fields: ['name^2', 'sku', 'brand_name', 'category_name'],
           type: 'best_fields',
           fuzziness: 'AUTO',
         },
       };
     } else {
-      // If no search query, match all documents
       queryBuilder.query = { match_all: {} };
+    }
+    //category filter
+    if (query.categoryId) {
+      queryBuilder.post_filter = {
+        term: { category_id: query.categoryId },
+      };
     }
     if (query.sortBy) {
       queryBuilder.sort = [

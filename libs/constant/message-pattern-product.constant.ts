@@ -23,6 +23,8 @@ export const PRODUCT_MESSAGE_PATTERNS = {
   CATEGORY_CREATE: 'category.create',
   CATEGORY_FIND_ALL: 'category.findAll',
   CATEGORY_FIND_BY_ID: 'category.findById',
+  CATEGORY_UPDATE: 'category.update',
+  CATEGORY_DELETE: 'category.delete',
 } as const;
 
 export type ProductMessagePattern =

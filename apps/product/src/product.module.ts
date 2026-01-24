@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
+import { CategoryService } from './category.service';
 import { Brand } from './entity/brand.entity';
 import { Category } from './entity/category.entity';
 import { Product } from './entity/product.entity';
@@ -26,7 +27,7 @@ import { ProductService } from './product.service';
     ]),
   ],
   controllers: [ProductController],
-  providers: [ProductService],
+  providers: [ProductService, CategoryService],
   exports: [ProductService],
 })
-export class ProductModule {}
+export class ProductModule { }
