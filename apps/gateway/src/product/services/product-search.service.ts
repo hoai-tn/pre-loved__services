@@ -5,6 +5,7 @@ import {
 import { SearchRequest } from '@elastic/elasticsearch/lib/api/types';
 import { Injectable, Logger } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { IProductElasticsearch } from '../dto/product-elasticsearch.dto';
 import { GetProductsQueryDto } from '../dto/product-simple.dto';
 
 const INDEX_NAME = 'products';
@@ -60,9 +61,7 @@ export class ProductSearchService {
       JSON.stringify(queryBuilder, null, 2),
     );
 
-    const body = await this.elasticsearchService.search(queryBuilder);
-    this.logger.debug(`[ProductSearchService] Search results:`, JSON.stringify(body, null, 2));
-    this.logger.debug(`[ProductSearchService] Hits:`, JSON.stringify(body.hits.hits, null, 2));
+    const body = await this.elasticsearchService.search<IProductElasticsearch>(queryBuilder);
 
     const total =
       typeof body.hits.total === 'object'
@@ -70,10 +69,10 @@ export class ProductSearchService {
         : body.hits.total;
 
     const items = body.hits.hits
-      .map(hit => hit._source)
-      .filter(source => source != null) as IProduct[];
+      .map(hit => hit._source ? this.#mapToProduct(hit._source) : null)
+      .filter(source => source != null);
 
-    this.logger.debug(`[ProductSearchService] Mapped items:`, items);
+    this.logger.debug(`[ProductSearchService] Mapped items:`, items.length);
 
     return {
       total: total ?? 0,
@@ -81,6 +80,25 @@ export class ProductSearchService {
       page: query.page ?? 1,
       limit: query.limit ?? 10,
       totalPages: Math.ceil((total ?? 0) / (query.limit ?? 10)),
-    } as ISearchProductsResponse;
+    };
+  }
+
+  #mapToProduct(esProduct: IProductElasticsearch): IProduct {
+    return {
+      id: esProduct.id,
+      name: esProduct.name,
+      description: esProduct.description,
+      price: esProduct.price,
+      stockQuantity: esProduct.stock_quantity,
+      sku: esProduct.sku,
+      brandId: esProduct.brand_id,
+      categoryId: esProduct.category_id,
+      userId: esProduct.user_id ? Number(esProduct.user_id) : undefined,
+      imageUrl: esProduct.image_url,
+      isActive: Boolean(esProduct.is_active),
+      createdAt: new Date(esProduct.created_at),
+      updatedAt: new Date(esProduct.updated_at),
+
+    }
   }
 }

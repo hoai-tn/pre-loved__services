@@ -23,12 +23,12 @@ export interface IProduct {
   brandId?: number;
   categoryId: number;
   userId?: number;
-  imageUrl?: string;
+  imageUrl: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   brand?: IBrand;
-  category: ICategory;
+  category?: ICategory;
 }
 
 export interface ISearchProductsResponse {

@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 
-@Entity('inventory_v2')
+@Entity('inventory')
 export class Inventory {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: number;
