@@ -46,6 +46,27 @@ export class ProductSearchService {
         term: { category_id: query.categoryId },
       };
     }
+    // search by product has isFeatured flags
+    if (query.isTrending) {
+      queryBuilder.post_filter = {
+        ...queryBuilder.post_filter,
+        term: { is_trending: 1 },
+      };
+    }
+
+    // price rage 
+    if (query.minPrice || query.maxPrice) {
+      queryBuilder.post_filter = {
+        ...queryBuilder.post_filter,
+        range: {
+          price: {
+            ...(query.minPrice ? { gte: query.minPrice } : {}),
+            ...(query.maxPrice ? { lte: query.maxPrice } : {}),
+          },
+        },
+      };
+    }
+
     if (query.sortBy) {
       queryBuilder.sort = [
         {
