@@ -9,6 +9,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateInventoryDto } from 'apps/gateway/src/inventory/dto/create-inventory.dto';
+import { CDN_CONFIG } from 'libs/constant/cdn.constant';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
 import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
 import { firstValueFrom } from 'rxjs';
@@ -35,7 +36,29 @@ export class ProductService {
     private readonly categoryRepository: Repository<Category>,
     @Inject(NAME_SERVICE_TCP.INVENTORY_SERVICE)
     private readonly inventoryService: ClientProxy,
-  ) { }
+  ) {}
+
+  /**
+   * Transform product imageUrl to full CDN URL
+   */
+  private transformProductUrl(product: Product): Product {
+    this.logger.debug(
+      `Transforming product ID ${product.id} image URL`,
+      product,
+    );
+    if (product && product.imageUrl) {
+      product.imageUrl =
+        CDN_CONFIG.getProductImageUrl(product.imageUrl) || product.imageUrl;
+    }
+    return product;
+  }
+
+  /**
+   * Transform array of products with CDN URLs
+   */
+  private transformProductsUrl(products: Product[]): Product[] {
+    return products.map(product => this.transformProductUrl(product));
+  }
 
   // Product methods
   async createProduct(createProductDto: CreateProductDto) {
@@ -84,7 +107,7 @@ export class ProductService {
       ),
     );
 
-    return savedProduct;
+    return this.transformProductUrl(savedProduct);
   }
 
   async findAllProducts(query: GetProductsQueryDto) {
@@ -170,7 +193,7 @@ export class ProductService {
     const [items, total] = await queryBuilder.getManyAndCount();
 
     return {
-      items,
+      items: this.transformProductsUrl(items),
       total,
       page,
       limit,
@@ -186,7 +209,7 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    return product;
+    return this.transformProductUrl(product);
   }
 
   async findProductBySku(sku: string): Promise<Product> {
@@ -197,7 +220,7 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    return product;
+    return this.transformProductUrl(product);
   }
 
   async updateProduct(
@@ -237,7 +260,8 @@ export class ProductService {
     }
 
     Object.assign(product, updateProductDto);
-    return this.productRepository.save(product);
+    const updatedProduct = await this.productRepository.save(product);
+    return this.transformProductUrl(updatedProduct);
   }
 
   async deleteProduct(id: number): Promise<void> {

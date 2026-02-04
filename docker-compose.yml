@@ -103,7 +103,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     depends_on:
       - elasticsearch
-      - mysql_app-host-1
+      # - mysql_app-host-1
     networks:
       - pre-loved-net
     restart: unless-stopped

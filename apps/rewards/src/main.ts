@@ -10,15 +10,6 @@ async function bootstrap() {
     logger: ['log', 'error', 'warn', 'debug', 'verbose'],
   });
 
-  const rmqService = app.get<RmqService>(RmqService);
-
-  app.connectMicroservice(
-    rmqService.getOptionsTopic('REWARDS_SERVICE_QUEUE', false, {
-      name: EXCHANGE.ORDERS_EXCHANGE,
-      type: 'fanout',
-    }),
-  );
-
   // Enable global RPC exception filter for microservices
   app.useGlobalFilters(new AllRpcExceptionFilter());
 
@@ -28,6 +19,15 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: false, // Allow extra properties for microservice flexibility
+    }),
+  );
+
+  const rmqService = app.get<RmqService>(RmqService);
+
+  app.connectMicroservice(
+    rmqService.getOptionsTopic('REWARDS_SERVICE_QUEUE', false, {
+      name: EXCHANGE.ORDERS_EXCHANGE,
+      type: 'fanout',
     }),
   );
 

@@ -83,7 +83,7 @@ GET {{baseUrl}}/products/categories
 ### 5. CREATE PRODUCTS
 ### ========================================
 
-### Create iPhone 14 Pro Max
+### Create iPhone 14 Pro Max (with CDN URL)
 POST {{baseUrl}}/products
 Content-Type: application/json
 
@@ -93,6 +93,32 @@ Content-Type: application/json
   "price": 30000000,
   "stockQuantity": 25,
   "sku": "IPHONE14PROMAX",
+  "brandId": 1,
+  "categoryId": 1,
+  "userId": 1,
+  "imageUrl": "/i/iphone-14-pro-max.jpg",
+  "likesCount": 45,
+  "commentsCount": 12,
+  "sharesCount": 8,
+  "viewCount": 850,
+  "isFeatured": true,
+  "isTrending": true,
+  "condition": "new",
+  "sellerNotes": "Sản phẩm chính hãng Apple, bảo hành 12 tháng tại các trung tâm bảo hành Apple Việt Nam. Tặng kèm ốp lưng và dán cường lực.",
+  "rating": 4.8,
+  "ratingCount": 89
+}
+
+### Create iPhone 14 Pro Max (Legacy - full external URL)
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "iPhone 14 Pro Max (Legacy)",
+  "description": "Latest iPhone with A16 Bionic chip and ProRAW camera",
+  "price": 30000000,
+  "stockQuantity": 25,
+  "sku": "IPHONE14PROMAX_LEGACY",
   "brandId": 1,
   "categoryId": 1,
   "userId": 1,
@@ -122,7 +148,7 @@ Content-Type: application/json
   "brandId": 2,
   "categoryId": 1,
   "userId": 2,
-  "imageUrl": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&q=80&w=600",
+  "imageUrl": "/s/samsung-galaxy-s23-ultra.jpg",
   "likesCount": 67,
   "commentsCount": 23,
   "sharesCount": 15,
