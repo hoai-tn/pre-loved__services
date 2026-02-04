@@ -46,9 +46,10 @@ export class ProductService {
       `Transforming product ID ${product.id} image URL`,
       product,
     );
-    if (product && product.imageUrl) {
-      product.imageUrl =
-        CDN_CONFIG.getProductImageUrl(product.imageUrl) || product.imageUrl;
+    if (product && product.thumbnailUrl) {
+      product.thumbnailUrl =
+        CDN_CONFIG.getProductImageUrl(product.thumbnailUrl) ||
+        product.thumbnailUrl;
     }
     return product;
   }

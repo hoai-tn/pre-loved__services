@@ -48,8 +48,13 @@ export class Product {
   @Column({ type: 'bigint', nullable: true, name: 'user_id' })
   userId?: number; // ID of the product creator
 
-  @Column({ type: 'varchar', length: 1000, nullable: true, name: 'image_url' })
-  imageUrl?: string;
+  @Column({
+    type: 'varchar',
+    length: 1000,
+    nullable: true,
+    name: 'thumbnail_url',
+  })
+  thumbnailUrl?: string;
 
   @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive: boolean;
@@ -99,6 +104,14 @@ export class Product {
 
   @Column({ type: 'int', default: () => '0', name: 'rating_count' })
   ratingCount: number;
+
+  @Column({
+    type: 'json',
+    nullable: true,
+    default: null,
+    name: 'catalog_images_url',
+  })
+  catalogImagesUrl?: string[]; // Array of image URLs for catalog
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

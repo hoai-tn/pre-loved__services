@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsIn,
   IsNumber,
@@ -47,7 +48,7 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
-  imageUrl?: string;
+  thumbnailUrl?: string;
 
   @IsOptional()
   @IsBoolean()
@@ -110,4 +111,9 @@ export class CreateProductDto {
   @Type(() => Number)
   @Min(0)
   ratingCount?: number = 0;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  catalogImagesUrl?: string[] = [];
 }

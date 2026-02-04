@@ -4,6 +4,7 @@
 
 export const CDN_CONFIG = {
   PRODUCT_IMAGE_BASE_URL:
+    process.env.PRODUCT_IMAGE_BASE_URL ||
     'https://cdn2.cellphones.com.vn/insecure/rs:fill:300:300/q:90/plain/https://cellphones.com.vn/media/catalog/product',
 
   /**
