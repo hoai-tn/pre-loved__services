@@ -15,6 +15,11 @@ export class OrdersController {
     return await this.ordersService.placeOrder(userId, items);
   }
 
+  @MessagePattern(ORDER_MESSAGE_PATTERN.GET_ORDER_BY_ID)
+  async getOrderById(@Payload() id: number) {
+    return await this.ordersService.getOrderById(id);
+  }
+
   @MessagePattern('get_orders_by_user')
   async getOrdersByUser(@Payload() userId: number) {
     return await this.ordersService.getOrdersByUser(userId);

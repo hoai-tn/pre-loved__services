@@ -19,6 +19,13 @@ import { OrderService } from './order.service';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Get order by id' })
+  @ApiResponse({ status: 200, description: 'Order details with items.' })
+  async getOrderById(@Param('id') id: string) {
+    return await this.orderService.getOrderById(id);
+  }
+
   @Get('user/:id')
   @ApiOperation({ summary: 'Get orders and user info by user id' })
   @ApiResponse({ status: 200, description: 'Order and user info.' })

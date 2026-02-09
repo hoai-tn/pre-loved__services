@@ -29,6 +29,7 @@ export const PRODUCT_MESSAGE_PATTERN = {
 
 export const ORDER_MESSAGE_PATTERN = {
   GET_ORDERS_BY_USER: 'get_orders_by_user',
+  GET_ORDER_BY_ID: 'get_order_by_id',
   CREATE_ORDER: 'create_order',
 };
 

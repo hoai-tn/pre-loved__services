@@ -126,6 +126,17 @@ export class OrdersService {
     return { order: result.order, orderItems: result.orderItems };
   }
 
+  async getOrderById(id: number): Promise<Order> {
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['items'],
+    });
+    if (!order) {
+      throw new BadRequestException(`Order with id ${id} not found`);
+    }
+    return order;
+  }
+
   async getOrdersByUser(userId: number): Promise<Order[]> {
     const orders = await this.orderRepository.find({
       where: { user_id: userId },

@@ -59,6 +59,29 @@ export class OrderService {
     }
   }
 
+  async getOrderById(id: string) {
+    const orderId = Number(id);
+    if (isNaN(orderId)) {
+      throw new Error('Invalid order id');
+    }
+    try {
+      return await firstValueFrom<unknown>(
+        this.ordersClient
+          .send(ORDER_MESSAGE_PATTERN.GET_ORDER_BY_ID, orderId)
+          .pipe(
+            timeout(5000),
+            catchError(err => throwError(() => err)),
+          ),
+      );
+    } catch (error) {
+      MicroserviceErrorHandler.handleError(
+        error,
+        'get order by id',
+        'Orders Service',
+      );
+    }
+  }
+
   async getOrderByUser(
     userId: string,
   ): Promise<{ user: unknown; orders: unknown }> {
