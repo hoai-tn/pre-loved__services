@@ -10,7 +10,8 @@ interface IProductElasticsearch {
   price: number;
   is_active: number;
   is_trending: number;
-  image_url: string;
+  thumbnail_url: string;
+  catalog_images_url: string[];
   seller_notes: string | null;
   version: string;
   app: string;

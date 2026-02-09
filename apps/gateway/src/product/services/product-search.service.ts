@@ -82,6 +82,7 @@ export class ProductSearchService {
     const limit = query.limit ?? 10;
     queryBuilder.from = (page - 1) * limit;
     queryBuilder.size = limit;
+    queryBuilder.sort = [{ created_at: 'asc' }];
 
     this.logger.debug(
       `[ProductSearchService] Query builder:`,
@@ -99,14 +100,17 @@ export class ProductSearchService {
         : body.hits.total;
 
     const items = body.hits.hits
-      .map(hit => (hit._source ? this.#mapToProduct(hit._source) : null))
-      .filter(source => source != null);
+      .filter(h => !!h._source)
+      .map(hit => {
+        if (!hit._source) return null;
+        return this.#mapToProduct(hit._source);
+      });
 
-    this.logger.debug(`[ProductSearchService] Mapped items:`, items.length);
+    this.logger.debug(`[ProductSearchService] Mapped items:`, items);
 
     return {
       total: total ?? 0,
-      items,
+      items: items as IProduct[],
       page: query.page ?? 1,
       limit: query.limit ?? 10,
       totalPages: Math.ceil((total ?? 0) / (query.limit ?? 10)),
@@ -114,6 +118,10 @@ export class ProductSearchService {
   }
 
   #mapToProduct(esProduct: IProductElasticsearch): IProduct {
+    this.logger.debug(
+      `[ProductSearchService] Mapping ES product:`,
+      esProduct.thumbnail_url,
+    );
     return {
       id: esProduct.id,
       name: esProduct.name,
@@ -124,9 +132,10 @@ export class ProductSearchService {
       brandId: esProduct.brand_id,
       categoryId: esProduct.category_id,
       userId: esProduct.user_id ? Number(esProduct.user_id) : undefined,
-      imageUrl:
-        CDN_CONFIG.getProductImageUrl(esProduct.image_url) ||
-        esProduct.image_url,
+      thumbnailUrl:
+        CDN_CONFIG.getProductImageUrl(esProduct.thumbnail_url) ||
+        esProduct.thumbnail_url,
+      catalogImagesUrl: esProduct.catalog_images_url,
       isActive: Boolean(esProduct.is_active),
       createdAt: new Date(esProduct.created_at),
       updatedAt: new Date(esProduct.updated_at),

@@ -35,7 +35,7 @@ export class ProductController {
   constructor(
     private readonly productService: ProductService,
     private readonly productSearchService: ProductSearchService,
-  ) { }
+  ) {}
 
   // ============================================================================
   // PRODUCT ENDPOINTS
@@ -53,7 +53,9 @@ export class ProductController {
   async createProduct(@Body() dto: CreateProductDto) {
     return await this.productService.createProduct(dto);
   }
-
+  // ============================================================================
+  // SEARCH & FILTER ENDPOINTS
+  // ============================================================================
   @Get()
   @ApiOperation({ summary: 'Get all products with filtering and pagination' })
   @ApiResponse({ status: 200, description: 'Products retrieved successfully.' })
@@ -64,7 +66,9 @@ export class ProductController {
   async getAllProducts(@Query(ValidationPipe) query: GetProductsQueryDto) {
     return await this.productSearchService.searchProducts(query);
   }
-
+  // ============================================================================
+  // SEARCH ENDPOINT
+  // ============================================================================
   @Get('search')
   @ApiOperation({ summary: 'Search products by keyword' })
   @ApiResponse({

@@ -23,7 +23,8 @@ export interface IProduct {
   brandId?: number;
   categoryId: number;
   userId?: number;
-  imageUrl: string;
+  thumbnailUrl: string;
+  catalogImagesUrl: string[];
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
