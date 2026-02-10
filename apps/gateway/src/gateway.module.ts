@@ -8,6 +8,7 @@ import { GatewayService } from './gateway.service';
 import { InventoryModule } from './inventory/inventory.module';
 import { OrderModule } from './order/order.module';
 import { ProductModule } from './product/product.module';
+import { ShipmentModule } from './shipment/shipment.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -53,12 +54,21 @@ import { UserModule } from './user/user.module';
           port: PORT_TCP.AUTH_TCP_PORT,
         },
       },
+      {
+        name: NAME_SERVICE_TCP.SHIPMENTS_SERVICE,
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: PORT_TCP.SHIPMENTS_TCP_PORT,
+        },
+      },
     ]),
     InventoryModule,
     UserModule,
     OrderModule,
     ProductModule,
     CategoryModule,
+    ShipmentModule,
     CachedModule,
   ],
   controllers: [GatewayController],

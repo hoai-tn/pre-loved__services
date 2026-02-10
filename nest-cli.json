@@ -109,6 +109,15 @@
         "tsConfigPath": "apps/rewards/tsconfig.app.json"
       }
     },
+    "shipments": {
+      "type": "application",
+      "root": "apps/shipments",
+      "entryFile": "main",
+      "sourceRoot": "apps/shipments/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/shipments/tsconfig.app.json"
+      }
+    },
     "user": {
       "type": "application",
       "root": "apps/user",
