@@ -1,5 +1,5 @@
 interface IProductElasticsearch {
-  id: string;
+  id: number;
   stock_quantity: number;
   user_id: string | null;
   condition: string;

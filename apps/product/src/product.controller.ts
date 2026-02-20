@@ -34,6 +34,11 @@ export class ProductController {
     return this.productService.findProductById(id);
   }
 
+  @MessagePattern(PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_IDS)
+  async findProductsByIds(@Payload() ids: number[]) {
+    return this.productService.findProductsByIds(ids);
+  }
+
   @MessagePattern(PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_SKU)
   async findProductBySku(@Payload() sku: string) {
     return this.productService.findProductBySku(sku);
@@ -85,6 +90,11 @@ export class ProductController {
   @MessagePattern(PRODUCT_MESSAGE_PATTERNS.BRAND_FIND_ALL)
   async findAllBrands() {
     return this.productService.findAllBrands();
+  }
+
+  @MessagePattern(PRODUCT_MESSAGE_PATTERNS.BRAND_FIND_ACTIVE)
+  async findActiveBrands() {
+    return this.productService.findActiveBrands();
   }
 
   @MessagePattern(PRODUCT_MESSAGE_PATTERNS.BRAND_FIND_BY_ID)

@@ -1,5 +1,5 @@
 interface IOrderItem {
-  productId: string;
+  productId: number;
   quantity: number;
   price?: number;
 }

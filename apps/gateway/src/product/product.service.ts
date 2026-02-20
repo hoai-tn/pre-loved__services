@@ -293,6 +293,15 @@ export class ProductService {
     );
   }
 
+  async getActiveBrands(): Promise<BrandResponseDto[]> {
+    return await firstValueFrom<BrandResponseDto[]>(
+      this.productClient.send<BrandResponseDto[]>(
+        PRODUCT_MESSAGE_PATTERNS.BRAND_FIND_ACTIVE,
+        {},
+      ),
+    );
+  }
+
   async getBrandById(id: number): Promise<BrandResponseDto> {
     return await firstValueFrom<BrandResponseDto>(
       this.productClient.send<BrandResponseDto>(

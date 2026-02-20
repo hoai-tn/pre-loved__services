@@ -36,16 +36,12 @@ export class ProductService {
     private readonly categoryRepository: Repository<Category>,
     @Inject(NAME_SERVICE_TCP.INVENTORY_SERVICE)
     private readonly inventoryService: ClientProxy,
-  ) {}
+  ) { }
 
   /**
    * Transform product imageUrl to full CDN URL
    */
   private transformProductUrl(product: Product): Product {
-    this.logger.debug(
-      `Transforming product ID ${product.id} image URL`,
-      product,
-    );
     if (product && product.thumbnailUrl) {
       product.thumbnailUrl =
         CDN_CONFIG.getProductImageUrl(product.thumbnailUrl) ||
@@ -213,6 +209,17 @@ export class ProductService {
     return this.transformProductUrl(product);
   }
 
+  async findProductsByIds(ids: number[]): Promise<Product[]> {
+    if (ids.length === 0) return [];
+    const products = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.brand', 'brand')
+      .leftJoinAndSelect('product.category', 'category')
+      .whereInIds(ids)
+      .getMany();
+    return this.transformProductsUrl(products);
+  }
+
   async findProductBySku(sku: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { sku },
@@ -287,6 +294,13 @@ export class ProductService {
   async findAllBrands(): Promise<Brand[]> {
     return this.brandRepository.find({
       relations: ['products'],
+      order: { name: 'ASC' },
+    });
+  }
+
+  async findActiveBrands(): Promise<Brand[]> {
+    return this.brandRepository.find({
+      where: { isActive: true },
       order: { name: 'ASC' },
     });
   }

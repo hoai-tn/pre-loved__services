@@ -13,7 +13,7 @@ const INDEX_NAME = 'products';
 @Injectable()
 export class ProductSearchService {
   private readonly logger = new Logger(ProductSearchService.name);
-  constructor(private readonly elasticsearchService: ElasticsearchService) {}
+  constructor(private readonly elasticsearchService: ElasticsearchService) { }
 
   async searchProducts(
     query: GetProductsQueryDto,
@@ -47,6 +47,14 @@ export class ProductSearchService {
         term: { category_id: query.categoryId },
       };
     }
+    // brand filter
+    if (query.brandId) {
+      queryBuilder.post_filter = {
+        ...queryBuilder.post_filter,
+        term: { brand_id: query.brandId },
+      };
+    }
+    // isActive filter
     // search by product has isFeatured flags
     if (query.isTrending) {
       queryBuilder.post_filter = {
@@ -84,11 +92,6 @@ export class ProductSearchService {
     queryBuilder.size = limit;
     queryBuilder.sort = [{ created_at: 'asc' }];
 
-    this.logger.debug(
-      `[ProductSearchService] Query builder:`,
-      JSON.stringify(queryBuilder, null, 2),
-    );
-
     const body =
       await this.elasticsearchService.search<IProductElasticsearch>(
         queryBuilder,
@@ -106,8 +109,6 @@ export class ProductSearchService {
         return this.#mapToProduct(hit._source);
       });
 
-    this.logger.debug(`[ProductSearchService] Mapped items:`, items);
-
     return {
       total: total ?? 0,
       items: items as IProduct[],
@@ -118,10 +119,6 @@ export class ProductSearchService {
   }
 
   #mapToProduct(esProduct: IProductElasticsearch): IProduct {
-    this.logger.debug(
-      `[ProductSearchService] Mapping ES product:`,
-      esProduct.thumbnail_url,
-    );
     return {
       id: esProduct.id,
       name: esProduct.name,

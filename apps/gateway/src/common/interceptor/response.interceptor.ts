@@ -33,7 +33,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<
         status: 'success',
         message: 'Request Success',
         timestamp: new Date().toISOString(),
-        data: data,
+        data,
       })),
     );
   }

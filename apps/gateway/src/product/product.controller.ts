@@ -133,6 +133,13 @@ export class ProductController {
     return await this.productService.getAllBrands();
   }
 
+  @Get('brands/active')
+  @ApiOperation({ summary: 'Get active brands' })
+  @ApiResponse({ status: 200, description: 'Active brands retrieved successfully.' })
+  async getActiveBrands() {
+    return await this.productService.getActiveBrands();
+  }
+
   @Post('brands')
   @ApiOperation({ summary: 'Create new brand' })
   @ApiResponse({ status: 201, description: 'Brand created successfully.' })

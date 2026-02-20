@@ -7,6 +7,7 @@ export const PRODUCT_MESSAGE_PATTERNS = {
   PRODUCT_CREATE: 'product.create',
   PRODUCT_FIND_ALL: 'product.findAll',
   PRODUCT_FIND_BY_ID: 'product.findById',
+  PRODUCT_FIND_BY_IDS: 'product.findByIds',
   PRODUCT_FIND_BY_SKU: 'product.findBySku',
   PRODUCT_UPDATE: 'product.update',
   PRODUCT_DELETE: 'product.delete',
@@ -17,6 +18,7 @@ export const PRODUCT_MESSAGE_PATTERNS = {
   // Brand patterns
   BRAND_CREATE: 'brand.create',
   BRAND_FIND_ALL: 'brand.findAll',
+  BRAND_FIND_ACTIVE: 'brand.findActive',
   BRAND_FIND_BY_ID: 'brand.findById',
 
   // Category patterns

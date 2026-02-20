@@ -15,7 +15,7 @@ import { IOrderItem, IProduct } from 'libs/common/src/interfaces';
 import { IStockCheckResult } from 'libs/common/src/interfaces/inventory.interface';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
 import { PRODUCT_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-product.constant';
-import { firstValueFrom, map } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Order } from './entity/order.entity';
 import { OrderItem } from './entity/order_item.entity';
@@ -35,7 +35,7 @@ export class OrdersService {
 
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     await this.inventoryClient.connect();
@@ -49,7 +49,7 @@ export class OrdersService {
         firstValueFrom(
           this.inventoryClient.send<
             IStockCheckResult,
-            { productId: string; quantity: number }
+            { productId: number; quantity: number }
           >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CHECK_STOCK, {
             productId: item.productId,
             quantity: item.quantity,
@@ -64,23 +64,20 @@ export class OrdersService {
       throw new BadRequestException('Stock not available');
     }
 
-    const productPrices = await Promise.all(
-      items.map(async item =>
-        firstValueFrom(
-          this.productClient
-            .send<
-              IProduct,
-              string
-            >(PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_ID, item.productId)
-            .pipe(
-              map(product => ({ productId: product.id, price: product.price })),
-            ),
+    const productIds = items.map(item => Number(item.productId));
+    const products = await firstValueFrom(
+      this.productClient
+        .send<IProduct[], number[]>(
+          PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_IDS,
+          productIds,
         ),
-      ),
     );
+    const productPrices = products.map(product => ({
+      productId: product.id,
+      price: product.price,
+    }));
     const itemsWithPrices = this.#calculateItemsPrices(items, productPrices);
     const total = this.#calculateTotal(itemsWithPrices);
-
     // 3. Save order and order items using transaction
     const result = await this.orderRepository.manager.transaction(
       async entityManager => {
@@ -126,7 +123,7 @@ export class OrdersService {
     return { order: result.order, orderItems: result.orderItems };
   }
 
-  async getOrderById(id: number): Promise<Order> {
+  async getOrderById(id: number) {
     const order = await this.orderRepository.findOne({
       where: { id },
       relations: ['items'],
@@ -134,27 +131,65 @@ export class OrdersService {
     if (!order) {
       throw new BadRequestException(`Order with id ${id} not found`);
     }
-    return order;
+    return this.#enrichOrdersWithThumbnails([order]).then(orders => orders[0]);
   }
 
-  async getOrdersByUser(userId: number): Promise<Order[]> {
+  async getOrdersByUser(userId: number) {
     const orders = await this.orderRepository.find({
       where: { user_id: userId },
       relations: ['items'],
     });
-    return orders;
+    return this.#enrichOrdersWithThumbnails(orders);
+  }
+
+  async #enrichOrdersWithThumbnails(orders: Order[]) {
+    const allItems = orders.flatMap(order => order.items ?? []);
+    const uniqueProductIds = [
+      ...new Set(allItems.map(item => Number(item.product_id))),
+    ];
+
+    if (uniqueProductIds.length === 0) return orders;
+
+    const thumbnailMap = await this.#getThumbnailMap(uniqueProductIds);
+
+    return orders.map(order => ({
+      ...order,
+      items: (order.items ?? []).map(item => ({
+        ...item,
+        thumbnail_url: thumbnailMap.get(Number(item.product_id)) ?? null,
+      })),
+    }));
+  }
+
+  async #getThumbnailMap(productIds: number[]) {
+    const products = await firstValueFrom(
+      this.productClient
+        .send<IProduct[], number[]>(
+          PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_IDS,
+          productIds,
+        ),
+    ).catch(() => [] as IProduct[]);
+
+    const thumbnailMap = new Map<number, string>();
+    for (const product of products) {
+      if (product?.thumbnailUrl) {
+        thumbnailMap.set(Number(product.id), product.thumbnailUrl);
+      }
+    }
+    return thumbnailMap;
   }
 
   #calculateItemsPrices(
     items: IOrderItem[],
-    prices: Array<{ productId: string; price: number }>,
+    prices: Array<{ productId: number; price: number }>,
   ) {
-    const priceMap = new Map<string, number>(
-      prices.map(price => [price.productId, price.price]),
+    const priceMap = new Map<number, number>(
+      prices.map(price => [Number(price.productId), price.price]),
     );
+
     return items.map(item => ({
       ...item,
-      price: (priceMap.get(item.productId) ?? 0) * item.quantity,
+      price: (priceMap.get(Number(item.productId)) ?? 0) * item.quantity,
     }));
   }
 
