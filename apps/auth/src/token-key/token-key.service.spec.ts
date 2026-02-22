@@ -68,15 +68,14 @@ describe('TokenKeyService', () => {
   describe('generateTokenKey', () => {
     it('should generate access and refresh tokens', async () => {
       // Arrange
-      const userId = 'user-123';
-      const userAuthId = 'auth-456';
+      const authUser = { userId: 123, username: 'testuser' };
 
       mockJwtService.signAsync
         .mockResolvedValueOnce('mock-access-token')
         .mockResolvedValueOnce('mock-refresh-token');
 
       // Act
-      const result = await service.generateTokenKey(userId, userAuthId);
+      const result = await service.generateTokenKey(authUser);
 
       // Assert
       expect(result).toEqual({
