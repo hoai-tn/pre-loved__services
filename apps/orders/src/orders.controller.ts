@@ -1,4 +1,4 @@
-import { Controller, Logger } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateOrderDto } from 'apps/gateway/src/order/dto/create-order.dto';
 import { ORDER_MESSAGE_PATTERN } from 'libs/constant/message-pattern.constant';
@@ -6,8 +6,7 @@ import { OrdersService } from './orders.service';
 
 @Controller('orders')
 export class OrdersController {
-  private readonly logger = new Logger(OrdersController.name);
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @MessagePattern(ORDER_MESSAGE_PATTERN.CREATE_ORDER)
   async createOrder(@Payload() payload: CreateOrderDto) {

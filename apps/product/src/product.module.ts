@@ -14,7 +14,6 @@ import { ProductService } from './product.service';
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([Product, Brand, Category]),
-    // RmqModule.register({ name: 'INVENTORY_SERVICE' }),
     ClientsModule.register([
       {
         name: NAME_SERVICE_TCP.INVENTORY_SERVICE,

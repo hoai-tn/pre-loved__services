@@ -1,4 +1,4 @@
-import { Inventory } from 'apps/inventory/src/inventory.entity';
+import { Inventory } from 'apps/inventory/src/entity/inventory.entity';
 
 /**
  * Response type for inventory create operation

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
-import { Inventory } from './inventory.entity';
+import { Inventory } from './entity/inventory.entity';
 
 export interface CreateInventoryDto {
   productId: number;
@@ -41,7 +41,7 @@ export class InventoryService {
   constructor(
     @InjectRepository(Inventory)
     private readonly inventoryRepository: Repository<Inventory>,
-  ) {}
+  ) { }
 
   async create(data: CreateInventoryDto): Promise<Inventory> {
     try {

@@ -2,8 +2,8 @@ import { RmqModule } from '@app/common';
 import { PostgresDatabaseModule } from '@app/database';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Inventory } from './entity/inventory.entity';
 import { InventoryController } from './inventory.controller';
-import { Inventory } from './inventory.entity';
 import { InventoryService } from './inventory.service';
 
 @Module({
@@ -15,4 +15,4 @@ import { InventoryService } from './inventory.service';
   controllers: [InventoryController],
   providers: [InventoryService],
 })
-export class InventoryModule {}
+export class InventoryModule { }

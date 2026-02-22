@@ -121,9 +121,9 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
     // Default: convert to RpcException with 500 status
     const defaultMessage =
       exception &&
-      typeof exception === 'object' &&
-      'message' in exception &&
-      typeof (exception as { message?: unknown }).message === 'string'
+        typeof exception === 'object' &&
+        'message' in exception &&
+        typeof (exception as { message?: unknown }).message === 'string'
         ? (exception as { message: string }).message
         : 'Internal server error';
 
@@ -179,7 +179,7 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
     const validationError = exception as ValidationError;
     const constructorName =
       validationError.constructor &&
-      typeof validationError.constructor === 'object'
+        typeof validationError.constructor === 'object'
         ? validationError.constructor.name
         : undefined;
     const message = validationError.message;
@@ -302,7 +302,7 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
    * Extract constraint name from error message
    */
   private extractConstraintName(message: string): string | null {
-    const match = message.match(/\"([^\"]+)\"/);
+    const match = message.match(/"([^"]+)"/);
     return match ? match[1] : null;
   }
 

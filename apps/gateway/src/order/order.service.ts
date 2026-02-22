@@ -42,7 +42,7 @@ export class OrderService {
       this.logger.log(
         `[ORDER-TCP] Creating order with payload: ${JSON.stringify(payload)}`,
       );
-      return await firstValueFrom<unknown>(
+      const result = await firstValueFrom<unknown>(
         this.ordersClient
           .send(ORDER_MESSAGE_PATTERN.CREATE_ORDER, payload)
           .pipe(
@@ -50,6 +50,8 @@ export class OrderService {
             catchError(err => throwError(() => err)),
           ),
       );
+      await this.redisService.del(`order_user:${payload.userId}`);
+      return result;
     } catch (error) {
       MicroserviceErrorHandler.handleError(
         error,

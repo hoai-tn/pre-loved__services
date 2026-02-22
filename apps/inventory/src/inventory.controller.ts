@@ -22,7 +22,7 @@ export class InventoryController {
   constructor(
     private readonly inventoryService: InventoryService,
     private readonly rmqService: RmqService,
-  ) {}
+  ) { }
 
   @MessagePattern(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CREATE)
   async createInventory(data: CreateInventoryDto) {
@@ -117,12 +117,12 @@ export class InventoryController {
   }
 
   @EventPattern(EVENT.ORDER_CREATED_EVENT)
-  async handleOrderCreated(@Payload() data: any, @Ctx() context: RmqContext) {
+  handleOrderCreated(@Payload() data: any, @Ctx() context: RmqContext) {
     this.logger.log(
       `[INVENTORY] Received event for order: ${JSON.stringify(data)}`,
     );
 
-    await this.inventoryService.handleOrderCreated(data);
+    this.inventoryService.handleOrderCreated(data);
 
     // Acknowledge that the message has been processed so RabbitMQ can remove it from the queue
     this.rmqService.ack(context);

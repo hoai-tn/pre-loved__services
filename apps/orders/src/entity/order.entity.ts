@@ -1,15 +1,16 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { OrderItem } from './order_item.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
+  DELIVERING = 'delivering',
   COMPLETED = 'completed',
   CANCELED = 'canceled',
 }
