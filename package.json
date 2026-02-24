@@ -58,7 +58,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.27"
+    "typeorm": "^0.3.27",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -116,7 +117,8 @@
     "moduleNameMapper": {
       "^@app/cached(|/.*)$": "<rootDir>/libs/cached/src/$1",
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1"
+      "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1",
+      "^libs/constant/(.*)$": "<rootDir>/libs/constant/$1"
     }
   }
 }
