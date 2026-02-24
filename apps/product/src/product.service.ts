@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateInventoryDto } from 'apps/gateway/src/inventory/dto/create-inventory.dto';
+import { CreateInventoryDto } from './dto/create-inventory.dto';
 import { CDN_CONFIG } from 'libs/constant/cdn.constant';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
 import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';

@@ -1,14 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/pre-loved/src",
+  "sourceRoot": "apps/gateway/src",
   "compilerOptions": {
-    "deleteOutDir": true,
-    "webpack": true,
-    "tsConfigPath": "apps/pre-loved/tsconfig.app.json"
+    "deleteOutDir": false,
+    "builder": "swc"
   },
   "monorepo": true,
-  "root": "apps/pre-loved",
+  "root": "apps/gateway",
   "projects": {
     "auth": {
       "type": "application",
@@ -16,6 +15,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/auth/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
@@ -52,6 +52,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/gateway/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/gateway/tsconfig.app.json"
       }
     },
@@ -61,6 +62,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/inventory/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/inventory/tsconfig.app.json"
       }
     },
@@ -70,6 +72,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/orders/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/orders/tsconfig.app.json"
       }
     },
@@ -79,16 +82,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/payments/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/payments/tsconfig.app.json"
-      }
-    },
-    "pre-loved": {
-      "type": "application",
-      "root": "apps/pre-loved",
-      "entryFile": "main",
-      "sourceRoot": "apps/pre-loved/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/pre-loved/tsconfig.app.json"
       }
     },
     "product": {
@@ -97,6 +92,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/product/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/product/tsconfig.app.json"
       }
     },
@@ -106,6 +102,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/rewards/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/rewards/tsconfig.app.json"
       }
     },
@@ -115,6 +112,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/shipments/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/shipments/tsconfig.app.json"
       }
     },
@@ -124,6 +122,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/user/src",
       "compilerOptions": {
+        "builder": "swc",
         "tsConfigPath": "apps/user/tsconfig.app.json"
       }
     }

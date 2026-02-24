@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreateOrderDto } from 'apps/gateway/src/order/dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import { ORDER_MESSAGE_PATTERN } from 'libs/constant/message-pattern.constant';
 import { OrdersService } from './orders.service';
 
