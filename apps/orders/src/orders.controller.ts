@@ -6,7 +6,7 @@ import { OrdersService } from './orders.service';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @MessagePattern(ORDER_MESSAGE_PATTERN.CREATE_ORDER)
   async createOrder(@Payload() payload: CreateOrderDto) {

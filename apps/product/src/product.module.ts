@@ -29,4 +29,4 @@ import { ProductService } from './product.service';
   providers: [ProductService, CategoryService],
   exports: [ProductService],
 })
-export class ProductModule { }
+export class ProductModule {}

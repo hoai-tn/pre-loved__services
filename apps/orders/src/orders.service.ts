@@ -35,7 +35,7 @@ export class OrdersService {
 
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     await this.inventoryClient.connect();
@@ -66,11 +66,10 @@ export class OrdersService {
 
     const productIds = items.map(item => Number(item.productId));
     const products = await firstValueFrom(
-      this.productClient
-        .send<IProduct[], number[]>(
-          PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_IDS,
-          productIds,
-        ),
+      this.productClient.send<IProduct[], number[]>(
+        PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_IDS,
+        productIds,
+      ),
     );
     const productPrices = products.map(product => ({
       productId: product.id,
@@ -163,11 +162,10 @@ export class OrdersService {
 
   async #getThumbnailMap(productIds: number[]) {
     const products = await firstValueFrom(
-      this.productClient
-        .send<IProduct[], number[]>(
-          PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_IDS,
-          productIds,
-        ),
+      this.productClient.send<IProduct[], number[]>(
+        PRODUCT_MESSAGE_PATTERNS.PRODUCT_FIND_BY_IDS,
+        productIds,
+      ),
     ).catch(() => [] as IProduct[]);
 
     const thumbnailMap = new Map<number, string>();

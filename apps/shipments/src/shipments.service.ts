@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/create-address.dto';
@@ -60,7 +65,9 @@ export class ShipmentsService {
   }
 
   async getShippingProviderById(id: string) {
-    const provider = await this.shippingProviderRepository.findOne({ where: { id } });
+    const provider = await this.shippingProviderRepository.findOne({
+      where: { id },
+    });
     if (!provider) {
       throw new NotFoundException(`Shipping provider with id ${id} not found`);
     }
@@ -73,7 +80,9 @@ export class ShipmentsService {
       where: { code: dto.carrier, enabled: true },
     });
     if (!provider) {
-      throw new BadRequestException(`Carrier '${dto.carrier}' not found or not enabled`);
+      throw new BadRequestException(
+        `Carrier '${dto.carrier}' not found or not enabled`,
+      );
     }
 
     const shipment = this.shipmentRepository.create(dto);

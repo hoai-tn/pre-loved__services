@@ -115,9 +115,7 @@ export class ProductService {
 
   async getProductById(
     id: number,
-  ): Promise<
-    ProductResponseDto & { user?: Partial<UserResponseDto> | null }
-  > {
+  ): Promise<ProductResponseDto & { user?: Partial<UserResponseDto> | null }> {
     this.logger.log(`Fetching product by ID: ${id}`);
     const response = await firstValueFrom(
       this.productClient
@@ -581,10 +579,7 @@ export class ProductService {
             .send({ cmd: USER_MESSAGE_PATTERN.GET_USER_INFO }, userId)
             .pipe(timeout(5000)),
         ).catch(() => null);
-        this.logger.debug(
-          `User service response for userId ${userId}:`,
-          user,
-        );
+        this.logger.debug(`User service response for userId ${userId}:`, user);
         return { userId, user };
       }),
     );

@@ -135,7 +135,10 @@ export class ProductController {
 
   @Get('brands/active')
   @ApiOperation({ summary: 'Get active brands' })
-  @ApiResponse({ status: 200, description: 'Active brands retrieved successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Active brands retrieved successfully.',
+  })
   async getActiveBrands() {
     return await this.productService.getActiveBrands();
   }

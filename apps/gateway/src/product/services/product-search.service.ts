@@ -13,7 +13,7 @@ const INDEX_NAME = 'products';
 @Injectable()
 export class ProductSearchService {
   private readonly logger = new Logger(ProductSearchService.name);
-  constructor(private readonly elasticsearchService: ElasticsearchService) { }
+  constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
   async searchProducts(
     query: GetProductsQueryDto,

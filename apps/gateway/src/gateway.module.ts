@@ -75,4 +75,4 @@ import { UserModule } from './user/user.module';
   providers: [GatewayService],
   exports: [ClientsModule],
 })
-export class GatewayModule { }
+export class GatewayModule {}

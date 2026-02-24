@@ -41,7 +41,7 @@ export class InventoryService {
   constructor(
     @InjectRepository(Inventory)
     private readonly inventoryRepository: Repository<Inventory>,
-  ) { }
+  ) {}
 
   async create(data: CreateInventoryDto): Promise<Inventory> {
     try {

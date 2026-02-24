@@ -22,7 +22,7 @@ export class InventoryController {
   constructor(
     private readonly inventoryService: InventoryService,
     private readonly rmqService: RmqService,
-  ) { }
+  ) {}
 
   @MessagePattern(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CREATE)
   async createInventory(data: CreateInventoryDto) {

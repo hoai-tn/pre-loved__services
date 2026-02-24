@@ -111,7 +111,9 @@ export class ShipmentController {
     status: 400,
     description: 'Bad Request - Invalid input data.',
   })
-  async createShipment(@Body(ValidationPipe) dto: CreateShipmentDto): Promise<ShipmentDto> {
+  async createShipment(
+    @Body(ValidationPipe) dto: CreateShipmentDto,
+  ): Promise<ShipmentDto> {
     return this.shipmentService.createShipment(dto);
   }
 
@@ -129,7 +131,9 @@ export class ShipmentController {
   @ApiParam({ name: 'orderId', description: 'Order ID', type: String })
   @ApiResponse({ status: 200, description: 'List of shipments for order.' })
   @ApiResponse({ status: 404, description: 'Order not found.' })
-  async getShipmentsByOrder(@Param('orderId') orderId: string): Promise<ShipmentDto[]> {
+  async getShipmentsByOrder(
+    @Param('orderId') orderId: string,
+  ): Promise<ShipmentDto[]> {
     return this.shipmentService.getShipmentsByOrder(orderId);
   }
 }

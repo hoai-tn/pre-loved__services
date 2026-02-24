@@ -36,7 +36,7 @@ export class ProductService {
     private readonly categoryRepository: Repository<Category>,
     @Inject(NAME_SERVICE_TCP.INVENTORY_SERVICE)
     private readonly inventoryService: ClientProxy,
-  ) { }
+  ) {}
 
   /**
    * Transform product imageUrl to full CDN URL

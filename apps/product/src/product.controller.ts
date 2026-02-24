@@ -13,7 +13,8 @@ import { ProductService } from './product.service';
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
-    @Inject(CategoryService) private readonly categoryService: CategoryService) { }
+    @Inject(CategoryService) private readonly categoryService: CategoryService,
+  ) {}
 
   // ============================================================================
   // PRODUCT MESSAGE PATTERNS
@@ -123,7 +124,11 @@ export class ProductController {
 
   @MessagePattern(PRODUCT_MESSAGE_PATTERNS.CATEGORY_UPDATE)
   async updateCategory(
-    @Payload() data: { id: number; updateCategoryDto: Partial<CreateCategoryDto> },
+    @Payload()
+    data: {
+      id: number;
+      updateCategoryDto: Partial<CreateCategoryDto>;
+    },
   ) {
     const { id, updateCategoryDto } = data;
     return await this.productService.updateCategory(id, updateCategoryDto);

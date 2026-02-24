@@ -24,7 +24,12 @@ import { ShipmentsService } from './shipments.service';
       entities: [Address, ShippingProvider, Shipment, ShipmentEvent],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Address, ShippingProvider, Shipment, ShipmentEvent]),
+    TypeOrmModule.forFeature([
+      Address,
+      ShippingProvider,
+      Shipment,
+      ShipmentEvent,
+    ]),
   ],
   controllers: [ShipmentsController],
   providers: [ShipmentsService],

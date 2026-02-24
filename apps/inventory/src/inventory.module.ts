@@ -15,4 +15,4 @@ import { InventoryService } from './inventory.service';
   controllers: [InventoryController],
   providers: [InventoryService],
 })
-export class InventoryModule { }
+export class InventoryModule {}

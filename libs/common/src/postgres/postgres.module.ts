@@ -25,4 +25,4 @@ import { Pool } from 'pg';
   ],
   exports: ['PG_POOL'],
 })
-export class PostgresModule { }
+export class PostgresModule {}

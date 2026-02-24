@@ -8,7 +8,7 @@ export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) { }
+  ) {}
 
   async getAllCategories() {
     return this.categoryRepository.find();

@@ -1,7 +1,10 @@
 import { EVENT } from '@app/common/constants/event';
 import { EXCHANGE } from '@app/common/constants/exchange';
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { of } from 'rxjs';
@@ -64,8 +67,24 @@ describe('OrdersService', () => {
 
     it('should place an order successfully', async () => {
       inventoryClient.send
-        .mockReturnValueOnce(of({ productId: 10, available: true, availableStock: 5, requestedQuantity: 2, sku: 'SKU-10' }))
-        .mockReturnValueOnce(of({ productId: 20, available: true, availableStock: 3, requestedQuantity: 1, sku: 'SKU-20' }));
+        .mockReturnValueOnce(
+          of({
+            productId: 10,
+            available: true,
+            availableStock: 5,
+            requestedQuantity: 2,
+            sku: 'SKU-10',
+          }),
+        )
+        .mockReturnValueOnce(
+          of({
+            productId: 20,
+            available: true,
+            availableStock: 3,
+            requestedQuantity: 1,
+            sku: 'SKU-20',
+          }),
+        );
 
       productClient.send.mockReturnValue(
         of([
@@ -75,21 +94,38 @@ describe('OrdersService', () => {
       );
 
       const savedOrder = { id: 1, user_id: userId, total: 250 };
-      const savedItem1 = { id: 1, order_id: 1, product_id: 10, quantity: 2, price: 200 };
-      const savedItem2 = { id: 2, order_id: 1, product_id: 20, quantity: 1, price: 50 };
+      const savedItem1 = {
+        id: 1,
+        order_id: 1,
+        product_id: 10,
+        quantity: 2,
+        price: 200,
+      };
+      const savedItem2 = {
+        id: 2,
+        order_id: 1,
+        product_id: 20,
+        quantity: 1,
+        price: 50,
+      };
       orderRepository.manager.transaction.mockImplementation(
-        (cb: (em: { create: jest.Mock; save: jest.Mock }) => Promise<unknown>) => {
+        (
+          cb: (em: { create: jest.Mock; save: jest.Mock }) => Promise<unknown>,
+        ) => {
           const entityManager = {
-            create: jest.fn()
+            create: jest
+              .fn()
               .mockReturnValueOnce(savedOrder)
               .mockReturnValueOnce(savedItem1)
               .mockReturnValueOnce(savedItem2),
-            save: jest.fn()
+            save: jest
+              .fn()
               .mockResolvedValueOnce(savedOrder)
               .mockResolvedValueOnce([savedItem1, savedItem2]),
           };
           return cb(entityManager);
-        });
+        },
+      );
 
       const result = await service.placeOrder(userId, items);
 
@@ -114,13 +150,32 @@ describe('OrdersService', () => {
         expect.any(Buffer),
       );
 
-      expect(result).toEqual({ order: savedOrder, orderItems: [savedItem1, savedItem2] });
+      expect(result).toEqual({
+        order: savedOrder,
+        orderItems: [savedItem1, savedItem2],
+      });
     });
 
     it('should throw BadRequestException when stock is not available', async () => {
       inventoryClient.send
-        .mockReturnValueOnce(of({ productId: 10, available: true, availableStock: 5, requestedQuantity: 2, sku: 'SKU-10' }))
-        .mockReturnValueOnce(of({ productId: 20, available: false, availableStock: 0, requestedQuantity: 1, sku: 'SKU-20' }));
+        .mockReturnValueOnce(
+          of({
+            productId: 10,
+            available: true,
+            availableStock: 5,
+            requestedQuantity: 2,
+            sku: 'SKU-10',
+          }),
+        )
+        .mockReturnValueOnce(
+          of({
+            productId: 20,
+            available: false,
+            availableStock: 0,
+            requestedQuantity: 1,
+            sku: 'SKU-20',
+          }),
+        );
 
       await expect(service.placeOrder(userId, items)).rejects.toThrow(
         new BadRequestException('Stock not available'),
@@ -131,8 +186,15 @@ describe('OrdersService', () => {
     });
 
     it('should throw InternalServerErrorException when transaction returns null', async () => {
-      inventoryClient.send
-        .mockReturnValue(of({ productId: 10, available: true, availableStock: 5, requestedQuantity: 2, sku: 'SKU-10' }));
+      inventoryClient.send.mockReturnValue(
+        of({
+          productId: 10,
+          available: true,
+          availableStock: 5,
+          requestedQuantity: 2,
+          sku: 'SKU-10',
+        }),
+      );
 
       productClient.send.mockReturnValue(
         of([{ id: 10, price: 100, thumbnailUrl: '' } as any]),
@@ -152,14 +214,14 @@ describe('OrdersService', () => {
         id: 1,
         user_id: 1,
         total: 200,
-        items: [
-          { id: 1, product_id: 10, quantity: 2, price: 200 },
-        ],
+        items: [{ id: 1, product_id: 10, quantity: 2, price: 200 }],
       };
       orderRepository.findOne.mockResolvedValue(order);
 
       productClient.send.mockReturnValue(
-        of([{ id: 10, thumbnailUrl: 'https://cdn.example.com/img.jpg' } as any]),
+        of([
+          { id: 10, thumbnailUrl: 'https://cdn.example.com/img.jpg' } as any,
+        ]),
       );
 
       const result = await service.getOrderById(1);
@@ -168,7 +230,9 @@ describe('OrdersService', () => {
         where: { id: 1 },
         relations: ['items'],
       });
-      expect(result.items[0].thumbnail_url).toBe('https://cdn.example.com/img.jpg');
+      expect(result.items[0].thumbnail_url).toBe(
+        'https://cdn.example.com/img.jpg',
+      );
     });
 
     it('should throw BadRequestException when order not found', async () => {
@@ -215,8 +279,12 @@ describe('OrdersService', () => {
         relations: ['items'],
       });
       expect(result).toHaveLength(2);
-      expect((result[0].items[0]).thumbnail_url).toBe('https://cdn.example.com/a.jpg');
-      expect((result[1].items[0]).thumbnail_url).toBe('https://cdn.example.com/b.jpg');
+      expect(result[0].items[0].thumbnail_url).toBe(
+        'https://cdn.example.com/a.jpg',
+      );
+      expect(result[1].items[0].thumbnail_url).toBe(
+        'https://cdn.example.com/b.jpg',
+      );
     });
 
     it('should return empty array when user has no orders', async () => {

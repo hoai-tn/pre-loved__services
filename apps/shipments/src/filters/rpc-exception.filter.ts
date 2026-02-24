@@ -96,7 +96,10 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
       timestamp: new Date().toISOString(),
     });
 
-    this.logger.error(`Unhandled exception converted to RpcException:`, exception);
+    this.logger.error(
+      `Unhandled exception converted to RpcException:`,
+      exception,
+    );
     return super.catch(rpcException, host);
   }
 
@@ -108,7 +111,9 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
     const code = typeof dbError.code === 'string' ? dbError.code : undefined;
     return (
       constructorName === 'QueryFailedError' ||
-      code === '23505' || code === '23502' || code === '23503' ||
+      code === '23505' ||
+      code === '23502' ||
+      code === '23503' ||
       message.includes('duplicate key value violates') ||
       message.includes('unique constraint') ||
       message.includes('foreign key constraint')
@@ -120,7 +125,12 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
     const validationError = exception as ValidationError;
     const constructorName = validationError.constructor?.name;
     const message = validationError.message;
-    const messageString = typeof message === 'string' ? message : Array.isArray(message) ? message.join(' ') : '';
+    const messageString =
+      typeof message === 'string'
+        ? message
+        : Array.isArray(message)
+          ? message.join(' ')
+          : '';
     return (
       constructorName === 'ValidationError' ||
       Array.isArray(message) ||
@@ -131,8 +141,10 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
   }
 
   private handleDatabaseError(exception: DatabaseError): RpcException {
-    const message = typeof exception.message === 'string' ? exception.message : '';
-    const code = typeof exception.code === 'string' ? exception.code : undefined;
+    const message =
+      typeof exception.message === 'string' ? exception.message : '';
+    const code =
+      typeof exception.code === 'string' ? exception.code : undefined;
 
     if (message.includes('duplicate key value violates') || code === '23505') {
       return new RpcException({
@@ -186,14 +198,22 @@ export class AllRpcExceptionFilter extends BaseRpcExceptionFilter {
 
   private getErrorName(status: HttpStatus): string {
     switch (status) {
-      case HttpStatus.BAD_REQUEST: return 'Bad Request';
-      case HttpStatus.UNAUTHORIZED: return 'Unauthorized';
-      case HttpStatus.FORBIDDEN: return 'Forbidden';
-      case HttpStatus.NOT_FOUND: return 'Not Found';
-      case HttpStatus.CONFLICT: return 'Conflict';
-      case HttpStatus.UNPROCESSABLE_ENTITY: return 'Unprocessable Entity';
-      case HttpStatus.INTERNAL_SERVER_ERROR: return 'Internal Server Error';
-      default: return 'Error';
+      case HttpStatus.BAD_REQUEST:
+        return 'Bad Request';
+      case HttpStatus.UNAUTHORIZED:
+        return 'Unauthorized';
+      case HttpStatus.FORBIDDEN:
+        return 'Forbidden';
+      case HttpStatus.NOT_FOUND:
+        return 'Not Found';
+      case HttpStatus.CONFLICT:
+        return 'Conflict';
+      case HttpStatus.UNPROCESSABLE_ENTITY:
+        return 'Unprocessable Entity';
+      case HttpStatus.INTERNAL_SERVER_ERROR:
+        return 'Internal Server Error';
+      default:
+        return 'Error';
     }
   }
 }
