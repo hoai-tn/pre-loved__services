@@ -6,7 +6,7 @@ import { createPool, Pool } from 'mysql2/promise';
   providers: [
     {
       provide: 'MYSQL_POOL',
-      useFactory: async () => {
+      useFactory: () => {
         const pool: Pool = createPool({
           host: process.env.MYSQL_HOST,
           port: Number(process.env.MYSQL_PORT),

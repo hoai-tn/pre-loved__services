@@ -24,6 +24,8 @@ export class OrderItem {
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   price: number;
 
+  thumbnail_url?: string | null;
+
   @ManyToOne(() => Order, order => order.items)
   @JoinColumn({ name: 'order_id' })
   order: Order;

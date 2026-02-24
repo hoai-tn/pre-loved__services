@@ -77,18 +77,19 @@ describe('OrdersService', () => {
       const savedOrder = { id: 1, user_id: userId, total: 250 };
       const savedItem1 = { id: 1, order_id: 1, product_id: 10, quantity: 2, price: 200 };
       const savedItem2 = { id: 2, order_id: 1, product_id: 20, quantity: 1, price: 50 };
-      orderRepository.manager.transaction.mockImplementation(async (cb) => {
-        const entityManager = {
-          create: jest.fn()
-            .mockReturnValueOnce(savedOrder)
-            .mockReturnValueOnce(savedItem1)
-            .mockReturnValueOnce(savedItem2),
-          save: jest.fn()
-            .mockResolvedValueOnce(savedOrder)
-            .mockResolvedValueOnce([savedItem1, savedItem2]),
-        };
-        return cb(entityManager);
-      });
+      orderRepository.manager.transaction.mockImplementation(
+        (cb: (em: { create: jest.Mock; save: jest.Mock }) => Promise<unknown>) => {
+          const entityManager = {
+            create: jest.fn()
+              .mockReturnValueOnce(savedOrder)
+              .mockReturnValueOnce(savedItem1)
+              .mockReturnValueOnce(savedItem2),
+            save: jest.fn()
+              .mockResolvedValueOnce(savedOrder)
+              .mockResolvedValueOnce([savedItem1, savedItem2]),
+          };
+          return cb(entityManager);
+        });
 
       const result = await service.placeOrder(userId, items);
 
@@ -167,7 +168,7 @@ describe('OrdersService', () => {
         where: { id: 1 },
         relations: ['items'],
       });
-      expect((result.items[0] as any).thumbnail_url).toBe('https://cdn.example.com/img.jpg');
+      expect(result.items[0].thumbnail_url).toBe('https://cdn.example.com/img.jpg');
     });
 
     it('should throw BadRequestException when order not found', async () => {

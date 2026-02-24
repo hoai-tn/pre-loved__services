@@ -28,7 +28,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<
     const statusCode = response.statusCode;
 
     return next.handle().pipe(
-      map(data => ({
+      map((data: T) => ({
         statusCode: statusCode,
         status: 'success',
         message: 'Request Success',

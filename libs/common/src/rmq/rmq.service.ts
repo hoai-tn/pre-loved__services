@@ -72,8 +72,8 @@ export class RmqService {
   }
 
   ack(context: RmqContext) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
+    const channel = context.getChannelRef() as { ack: (msg: unknown) => void };
+    const originalMsg = context.getMessage() as unknown;
     channel.ack(originalMsg);
   }
 }

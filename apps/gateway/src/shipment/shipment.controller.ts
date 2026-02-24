@@ -1,3 +1,4 @@
+import { AddressDto, ShipmentDto, ShippingProviderDto } from '@app/common/dto';
 import {
   Body,
   Controller,
@@ -34,7 +35,7 @@ export class ShipmentController {
   @Get('addresses')
   @ApiOperation({ summary: 'Get all addresses' })
   @ApiResponse({ status: 200, description: 'List of addresses.' })
-  async getAllAddresses() {
+  async getAllAddresses(): Promise<AddressDto[]> {
     return this.shipmentService.getAllAddresses();
   }
 
@@ -43,7 +44,7 @@ export class ShipmentController {
   @ApiParam({ name: 'id', description: 'Address ID', type: String })
   @ApiResponse({ status: 200, description: 'Address details.' })
   @ApiResponse({ status: 404, description: 'Address not found.' })
-  async getAddressById(@Param('id') id: string) {
+  async getAddressById(@Param('id') id: string): Promise<AddressDto> {
     return this.shipmentService.getAddressById(id);
   }
 
@@ -55,7 +56,9 @@ export class ShipmentController {
     status: 400,
     description: 'Bad Request - Invalid input data.',
   })
-  async createAddress(@Body(ValidationPipe) dto: CreateAddressDto) {
+  async createAddress(
+    @Body(ValidationPipe) dto: CreateAddressDto,
+  ): Promise<AddressDto> {
     return this.shipmentService.createAddress(dto);
   }
 
@@ -72,7 +75,7 @@ export class ShipmentController {
   async updateAddress(
     @Param('id') id: string,
     @Body(ValidationPipe) dto: UpdateAddressDto,
-  ) {
+  ): Promise<AddressDto> {
     return this.shipmentService.updateAddress(id, dto);
   }
 
@@ -81,7 +84,7 @@ export class ShipmentController {
   @ApiParam({ name: 'id', description: 'Address ID', type: String })
   @ApiResponse({ status: 200, description: 'Address deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Address not found.' })
-  async deleteAddress(@Param('id') id: string) {
+  async deleteAddress(@Param('id') id: string): Promise<{ deleted: boolean }> {
     return this.shipmentService.deleteAddress(id);
   }
 
@@ -92,7 +95,7 @@ export class ShipmentController {
   @Get('shipping-providers')
   @ApiOperation({ summary: 'Get all shipping providers' })
   @ApiResponse({ status: 200, description: 'List of shipping providers.' })
-  async getAllShippingProviders() {
+  async getAllShippingProviders(): Promise<ShippingProviderDto[]> {
     return this.shipmentService.getAllShippingProviders();
   }
 
@@ -108,7 +111,7 @@ export class ShipmentController {
     status: 400,
     description: 'Bad Request - Invalid input data.',
   })
-  async createShipment(@Body(ValidationPipe) dto: CreateShipmentDto) {
+  async createShipment(@Body(ValidationPipe) dto: CreateShipmentDto): Promise<ShipmentDto> {
     return this.shipmentService.createShipment(dto);
   }
 
@@ -117,7 +120,7 @@ export class ShipmentController {
   @ApiParam({ name: 'id', description: 'Shipment ID', type: String })
   @ApiResponse({ status: 200, description: 'Shipment details.' })
   @ApiResponse({ status: 404, description: 'Shipment not found.' })
-  async getShipmentById(@Param('id') id: string) {
+  async getShipmentById(@Param('id') id: string): Promise<ShipmentDto> {
     return this.shipmentService.getShipmentById(id);
   }
 
@@ -126,7 +129,7 @@ export class ShipmentController {
   @ApiParam({ name: 'orderId', description: 'Order ID', type: String })
   @ApiResponse({ status: 200, description: 'List of shipments for order.' })
   @ApiResponse({ status: 404, description: 'Order not found.' })
-  async getShipmentsByOrder(@Param('orderId') orderId: string) {
+  async getShipmentsByOrder(@Param('orderId') orderId: string): Promise<ShipmentDto[]> {
     return this.shipmentService.getShipmentsByOrder(orderId);
   }
 }

@@ -24,8 +24,6 @@ import { LoginUserDto, RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days
-const COOKIE_SAME_SITE =
-  process.env.NODE_ENV === 'production' ? 'none' : 'none';
 @ApiTags('User')
 @Controller('user')
 export class UserController {

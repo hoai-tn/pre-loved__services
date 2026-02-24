@@ -6,7 +6,6 @@ import {
   Delete,
   Body,
   Param,
-  Query,
   ParseIntPipe,
   ValidationPipe,
 } from '@nestjs/common';
@@ -15,7 +14,6 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
@@ -116,7 +114,7 @@ export class InventoryController {
   })
   @ApiResponse({ status: 404, description: 'Product not found.' })
   async checkStock(@Body(ValidationPipe) body: CheckStockDto) {
-    return this.inventoryService.checkStock(body.productId, body.quantity);
+    return this.inventoryService.checkStock(body);
   }
 
   @Post('reserve-stock')
@@ -125,7 +123,7 @@ export class InventoryController {
   @ApiResponse({ status: 400, description: 'Insufficient stock.' })
   @ApiResponse({ status: 404, description: 'Product not found.' })
   async reserveStock(@Body(ValidationPipe) body: ReserveStockDto) {
-    return this.inventoryService.reserveStock(body.productId, body.quantity);
+    return this.inventoryService.reserveStock(body);
   }
 
   @Post('release-stock')
@@ -134,7 +132,7 @@ export class InventoryController {
   @ApiResponse({ status: 400, description: 'Invalid release request.' })
   @ApiResponse({ status: 404, description: 'Product not found.' })
   async releaseStock(@Body(ValidationPipe) body: ReleaseStockDto) {
-    return this.inventoryService.releaseStock(body.productId, body.quantity);
+    return this.inventoryService.releaseStock(body);
   }
 
   @Put(':id')

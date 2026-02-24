@@ -7,21 +7,40 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { RpcErrorBody } from '../microservice-error.handler';
 
-@Catch() // Catch all exceptions, not just HttpException
+/** Shape of the object NestJS puts inside HttpException.getResponse() */
+interface HttpExceptionResponse {
+  message?: string | string[];
+  error?: string;
+  statusCode?: number;
+}
+
+/** Shape of the JSON body sent to the client */
+interface ErrorResponseBody {
+  statusCode: number;
+  status: 'error';
+  error: string;
+  message: string;
+  data: null;
+  timestamp: string;
+  path: string;
+  method: string;
+}
+
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
+    let status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
     let error: string = 'UnknownError';
 
-    // Log the raw exception for debugging
     this.logger.error(
       `Raw exception caught: ${JSON.stringify(exception)}`,
       exception instanceof Error ? exception.stack : undefined,
@@ -29,7 +48,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     );
 
     if (exception instanceof HttpException) {
-      // Handle NestJS HTTP exceptions
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
@@ -40,59 +58,55 @@ export class HttpExceptionFilter implements ExceptionFilter {
         typeof exceptionResponse === 'object' &&
         exceptionResponse !== null
       ) {
-        message = (exceptionResponse as any).message || exception.message;
-        error = (exceptionResponse as any).error || exception.constructor.name;
+        const resp = exceptionResponse as HttpExceptionResponse;
+        message = resp.message ?? exception.message;
+        error = resp.error ?? exception.constructor.name;
       } else {
         message = exception.message;
         error = exception.constructor.name;
       }
     } else if (exception instanceof Error) {
-      // Handle generic JavaScript errors
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = exception.message || 'Internal server error';
       error = exception.constructor.name;
     } else if (typeof exception === 'object' && exception !== null) {
-      // Handle microservice error objects
-      const errorObj = exception as any;
+      const errorObj = exception as RpcErrorBody;
 
-      // Extract status code (ensure it's a number)
-      if (typeof errorObj.statusCode === 'number') {
+      if (errorObj.statusCode !== undefined) {
         status = errorObj.statusCode;
-      } else if (typeof errorObj.status === 'number') {
+      } else if (errorObj.status !== undefined) {
         status = errorObj.status;
       } else {
         status = HttpStatus.INTERNAL_SERVER_ERROR;
       }
 
-      // Extract message
-      message = errorObj.message || errorObj.error || 'Internal server error';
-      error = errorObj.error || 'MicroserviceError';
+      const rawMessage =
+        errorObj.message ?? errorObj.error ?? 'Internal server error';
+      message = rawMessage;
+      error = errorObj.error ?? 'MicroserviceError';
 
       this.logger.error(
-        `Microservice error: Status=${status}, Message=${message}`,
+        `Microservice error: Status=${status}, Message=${Array.isArray(message) ? message.join(', ') : message}`,
         undefined,
         `${request.method} ${request.url}`,
       );
     } else {
-      // Handle completely unknown exceptions
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Internal server error';
       error = 'UnknownError';
     }
 
-    // Ensure status is a valid HTTP status code
-    if (typeof status !== 'number' || status < 100 || status > 599) {
+    if (Number(status) < 100 || Number(status) > 599) {
       this.logger.error(
         `Invalid status code detected: ${status}, using 500 instead`,
       );
       status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    // Format and send the error response
-    const errorResponse = {
+    const errorResponse: ErrorResponseBody = {
       statusCode: status,
       status: 'error',
-      error: error,
+      error,
       message: Array.isArray(message) ? message.join(', ') : message,
       data: null,
       timestamp: new Date().toISOString(),
@@ -100,8 +114,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       method: request.method,
     };
 
-    // Log the error response
-    if (status >= 500) {
+    if (Number(status) >= 500) {
       this.logger.error(
         `HTTP ${status} Error Response: ${JSON.stringify(errorResponse)}`,
         undefined,
@@ -117,12 +130,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     try {
       response.status(status).json(errorResponse);
     } catch (responseError) {
+      const msg =
+        responseError instanceof Error
+          ? responseError.message
+          : String(responseError);
       this.logger.error(
-        `Failed to send error response: ${responseError}`,
+        `Failed to send error response: ${msg}`,
         undefined,
         `${request.method} ${request.url}`,
       );
-      // Fallback response
       response.status(500).json({
         statusCode: 500,
         status: 'error',
@@ -132,7 +148,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         timestamp: new Date().toISOString(),
         path: request.url,
         method: request.method,
-      });
+      } satisfies ErrorResponseBody);
     }
   }
 }

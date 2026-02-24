@@ -7,7 +7,7 @@ import Redis from 'ioredis';
     CachedService,
     {
       provide: 'REDIS_CLIENT',
-      async useFactory() {
+      useFactory() {
         return new Redis({
           host: 'redis-14971.c252.ap-southeast-1-1.ec2.cloud.redislabs.com',
           port: 14971,

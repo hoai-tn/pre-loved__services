@@ -14,7 +14,5 @@ describe('AuthController', () => {
     authController = app.get<AuthController>(AuthController);
   });
 
-  describe('root', () => {
-
-  });
+  describe('root', () => {});
 });

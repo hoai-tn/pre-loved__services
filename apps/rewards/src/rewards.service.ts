@@ -4,7 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 export class RewardsService {
   private readonly logger = new Logger(RewardsService.name);
 
-  async addRewards(order: any) {
+  async addRewards(order: { id: string | number }) {
     this.logger.log(`Adding rewards for customer on order ${order.id}...`);
 
     // Simulate a time-consuming task

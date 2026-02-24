@@ -6,25 +6,8 @@ import {
   USER_MESSAGE_PATTERN,
 } from 'libs/constant/message-pattern.constant';
 import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
-import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
-import { MicroserviceErrorHandler } from '../common/microservice-error.handler';
+import { firstValueFrom, timeout } from 'rxjs';
 import { CreateOrderDto } from './dto/create-order.dto';
-
-export abstract class BaseAggregatorService {
-  protected logger = new Logger(BaseAggregatorService.name);
-
-  protected async aggregate<T>(tasks: Array<Promise<T>>): Promise<T[]> {
-    return Promise.all(tasks);
-  }
-
-  protected handleError(err: any, serviceName: string) {
-    MicroserviceErrorHandler.handleError(
-      err,
-      'service communication',
-      serviceName,
-    );
-  }
-}
 
 @Injectable()
 export class OrderService {
@@ -38,27 +21,16 @@ export class OrderService {
   ) {}
 
   async createOrder(payload: CreateOrderDto) {
-    try {
-      this.logger.log(
-        `[ORDER-TCP] Creating order with payload: ${JSON.stringify(payload)}`,
-      );
-      const result = await firstValueFrom<unknown>(
-        this.ordersClient
-          .send(ORDER_MESSAGE_PATTERN.CREATE_ORDER, payload)
-          .pipe(
-            timeout(5000),
-            catchError(err => throwError(() => err)),
-          ),
-      );
-      await this.redisService.del(`order_user:${payload.userId}`);
-      return result;
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        'create order',
-        'Orders Service',
-      );
-    }
+    this.logger.log(
+      `[ORDER-TCP] Creating order with payload: ${JSON.stringify(payload)}`,
+    );
+    const result = await firstValueFrom<unknown>(
+      this.ordersClient
+        .send(ORDER_MESSAGE_PATTERN.CREATE_ORDER, payload)
+        .pipe(timeout(5000)),
+    );
+    await this.redisService.del(`order_user:${payload.userId}`);
+    return result;
   }
 
   async getOrderById(id: string) {
@@ -66,22 +38,11 @@ export class OrderService {
     if (isNaN(orderId)) {
       throw new Error('Invalid order id');
     }
-    try {
-      return await firstValueFrom<unknown>(
-        this.ordersClient
-          .send(ORDER_MESSAGE_PATTERN.GET_ORDER_BY_ID, orderId)
-          .pipe(
-            timeout(5000),
-            catchError(err => throwError(() => err)),
-          ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        'get order by id',
-        'Orders Service',
-      );
-    }
+    return await firstValueFrom<unknown>(
+      this.ordersClient
+        .send(ORDER_MESSAGE_PATTERN.GET_ORDER_BY_ID, orderId)
+        .pipe(timeout(5000)),
+    );
   }
 
   async getOrderByUser(
@@ -96,45 +57,17 @@ export class OrderService {
     if (isNaN(uid)) {
       throw new Error('Invalid userId');
     }
-    // // Call order service to get orders
-    // const orders = await firstValueFrom(
-    // 	this.ordersClient.send(ORDER_MESSAGE_PATTERN.GET_ORDERS_BY_USER, uid).pipe(
-    // 		timeout(5000),
-    // 		catchError(err => { throw new Error('Orders service unavailable'); }),
-    // 	),
-    // );
-    // // Call user service to get user info
-    // const user = await firstValueFrom(
-    // 	this.userClient.send({ cmd: USER_MESSAGE_PATTERN.GET_USER_INFO }, uid).pipe(
-    // 		timeout(5000),
-    // 		catchError(err => { throw new Error('User service unavailable'); }),
-    // 	),
-    // );
-    // const result = { user, orders };
-    // await this.redisService.set(cacheKey, JSON.stringify(result), 300);
-    // return result;
 
-    // Aggregator: call child services and aggregate results
     const [orders, user] = await Promise.all<unknown[]>([
       firstValueFrom<unknown>(
         this.ordersClient
           .send(ORDER_MESSAGE_PATTERN.GET_ORDERS_BY_USER, uid)
-          .pipe(
-            timeout(5000),
-            catchError(() => {
-              throw new Error('Orders service unavailable');
-            }),
-          ),
+          .pipe(timeout(5000)),
       ),
       firstValueFrom<unknown>(
         this.userClient
           .send({ cmd: USER_MESSAGE_PATTERN.GET_USER_INFO }, uid)
-          .pipe(
-            timeout(5000),
-            catchError(() => {
-              throw new Error('User service unavailable');
-            }),
-          ),
+          .pipe(timeout(5000)),
       ),
     ]);
 

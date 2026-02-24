@@ -13,7 +13,7 @@ export class GatewayService {
   ) {}
 
   async createOrder(payload: any) {
-    const resultObservable = this.ordersClient.send(
+    const resultObservable = this.ordersClient.send<unknown>(
       { cmd: CMD.CREATE_ORDER },
       payload,
     );

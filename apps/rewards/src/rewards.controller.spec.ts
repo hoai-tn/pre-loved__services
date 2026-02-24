@@ -15,8 +15,8 @@ describe('RewardsController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(rewardsController.getHello()).toBe('Hello World!');
+    it('should be defined', () => {
+      expect(rewardsController).toBeDefined();
     });
   });
 });

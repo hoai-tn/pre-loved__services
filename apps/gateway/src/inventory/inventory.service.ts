@@ -4,15 +4,25 @@ import {
   IInventoryFindByProductId,
   IInventoryFindBySku,
   IInventoryFindOne,
+  IInventoryGetLowStock,
+  IInventoryRemove,
+  IInventoryUpdate,
+  IReleaseStockResult,
+  IReserveStockResult,
+  IStockCheckResult,
 } from '@app/common/interfaces';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { INVENTORY_MESSAGE_PATTERNS } from 'libs/constant/message-pattern-inventory.constant';
 import { NAME_SERVICE_TCP } from 'libs/constant/port-tcp.constant';
 import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
-import { MicroserviceErrorHandler } from '../common/microservice-error.handler';
-
-// DTOs are now in separate files for better Swagger documentation
+import { CreateInventoryDto } from './dto/create-inventory.dto';
+import {
+  CheckStockDto,
+  ReleaseStockDto,
+  ReserveStockDto,
+} from './dto/stock-operations.dto';
+import { UpdateInventoryDto } from './dto/update-inventory.dto';
 
 @Injectable()
 export class InventoryService {
@@ -23,225 +33,191 @@ export class InventoryService {
     private readonly inventoryClient: ClientProxy,
   ) {}
 
-  async create(data: any) {
-    try {
-      this.logger.log(`Creating inventory: ${JSON.stringify(data)}`);
-      return await firstValueFrom<IInventoryCreate>(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CREATE, data)
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
+  async create(data: CreateInventoryDto): Promise<IInventoryCreate> {
+    this.logger.log(`Creating inventory: ${JSON.stringify(data)}`);
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IInventoryCreate,
+          CreateInventoryDto
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CREATE, data)
+        .pipe(
+          timeout(10000),
+          catchError(err =>
+            throwError(() => {
+              if (err instanceof Error) {
+                this.logger.error('Error creating inventory:', err);
+              }
+              throw err;
+            }),
           ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        'create inventory',
-        'Inventory Service',
-      );
-    }
+        ),
+    );
   }
 
-  async findAll() {
-    try {
-      return await firstValueFrom<IInventoryFindAll>(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_ALL, {})
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
+  async findAll(): Promise<IInventoryFindAll> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IInventoryFindAll,
+          Record<string, never>
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_ALL, {})
+        .pipe(
+          timeout(10000),
+          catchError(err =>
+            throwError(() => {
+              if (err instanceof Error) {
+                this.logger.error('Error finding all inventory:', err);
+              }
+              throw err;
+            }),
           ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        'find all inventory',
-        'Inventory Service',
-      );
-    }
+        ),
+    );
   }
 
-  async findOne(id: number) {
-    try {
-      return await firstValueFrom<IInventoryFindOne>(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_ONE, id)
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
+  async findOne(id: number): Promise<IInventoryFindOne> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IInventoryFindOne,
+          number
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_ONE, id)
+        .pipe(
+          timeout(10000),
+          catchError(err =>
+            throwError(() => {
+              if (err instanceof Error) {
+                this.logger.error('Error finding inventory by id:', err);
+              }
+              throw err;
+            }),
           ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        `find inventory by ID: ${id}`,
-        'Inventory Service',
-      );
-    }
+        ),
+    );
   }
 
-  async findByProductId(productId: number) {
-    try {
-      return await firstValueFrom<IInventoryFindByProductId>(
-        this.inventoryClient
-          .send(
-            INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_BY_PRODUCT_ID,
-            productId,
-          )
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
+  async findByProductId(productId: number): Promise<IInventoryFindByProductId> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IInventoryFindByProductId,
+          number
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_BY_PRODUCT_ID, productId)
+        .pipe(
+          timeout(10000),
+          catchError(err =>
+            throwError(() => {
+              if (err instanceof Error) {
+                this.logger.error(
+                  'Error finding inventory by product id:',
+                  err,
+                );
+              }
+              throw err;
+            }),
           ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        `find inventory by product ID: ${productId}`,
-        'Inventory Service',
-      );
-    }
+        ),
+    );
   }
 
-  async findBySku(sku: string) {
-    try {
-      return await firstValueFrom<IInventoryFindBySku>(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_BY_SKU, sku)
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
+  async findBySku(sku: string): Promise<IInventoryFindBySku> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IInventoryFindBySku,
+          string
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_FIND_BY_SKU, sku)
+        .pipe(
+          timeout(10000),
+          catchError(err =>
+            throwError(() => {
+              if (err instanceof Error) {
+                this.logger.error('Error finding inventory by SKU:', err);
+              }
+              throw err;
+            }),
           ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        `find inventory by SKU: ${sku}`,
-        'Inventory Service',
-      );
-    }
+        ),
+    );
   }
 
-  async update(id: number, update: any) {
-    try {
-      return await firstValueFrom(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_UPDATE, { id, update })
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
+  async update(
+    id: number,
+    update: UpdateInventoryDto,
+  ): Promise<IInventoryUpdate> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IInventoryUpdate,
+          { id: number; update: UpdateInventoryDto }
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_UPDATE, { id, update })
+        .pipe(
+          timeout(10000),
+          catchError(err =>
+            throwError(() => {
+              if (err instanceof Error) {
+                this.logger.error('Error updating inventory:', err);
+              }
+              throw err;
+            }),
           ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        `update inventory ID: ${id}`,
-        'Inventory Service',
-      );
-    }
+        ),
+    );
   }
 
-  async remove(id: number) {
-    try {
-      return await firstValueFrom(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_REMOVE, id)
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
-          ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        `remove inventory ID: ${id}`,
-        'Inventory Service',
-      );
-    }
+  async remove(id: number): Promise<IInventoryRemove> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IInventoryRemove,
+          number
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_REMOVE, id)
+        .pipe(timeout(10000)),
+    );
   }
 
-  async checkStock(productId: number, quantity: number) {
-    try {
-      return await firstValueFrom(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CHECK_STOCK, {
-            productId,
-            quantity,
-          })
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
-          ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        `check stock for product ${productId}`,
-        'Inventory Service',
-      );
-    }
+  async checkStock(dto: CheckStockDto): Promise<IStockCheckResult> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IStockCheckResult,
+          CheckStockDto
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_CHECK_STOCK, dto)
+        .pipe(timeout(10000)),
+    );
   }
 
-  async reserveStock(productId: number, quantity: number) {
-    try {
-      return await firstValueFrom(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_RESERVE_STOCK, {
-            productId,
-            quantity,
-          })
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
-          ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        `reserve stock for product ${productId}`,
-        'Inventory Service',
-      );
-    }
+  async reserveStock(dto: ReserveStockDto): Promise<IReserveStockResult> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IReserveStockResult,
+          ReserveStockDto
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_RESERVE_STOCK, dto)
+        .pipe(timeout(10000)),
+    );
   }
 
-  async releaseStock(productId: number, quantity: number) {
-    try {
-      return await firstValueFrom(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_RELEASE_STOCK, {
-            productId,
-            quantity,
-          })
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
-          ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        `release stock for product ${productId}`,
-        'Inventory Service',
-      );
-    }
+  async releaseStock(dto: ReleaseStockDto): Promise<IReleaseStockResult> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IReleaseStockResult,
+          ReleaseStockDto
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_RELEASE_STOCK, dto)
+        .pipe(timeout(10000)),
+    );
   }
 
-  async getLowStock() {
-    try {
-      return await firstValueFrom(
-        this.inventoryClient
-          .send(INVENTORY_MESSAGE_PATTERNS.INVENTORY_GET_LOW_STOCK, {})
-          .pipe(
-            timeout(10000),
-            catchError(error => throwError(() => error)),
-          ),
-      );
-    } catch (error) {
-      MicroserviceErrorHandler.handleError(
-        error,
-        'get low stock items',
-        'Inventory Service',
-      );
-    }
+  async getLowStock(): Promise<IInventoryGetLowStock> {
+    return await firstValueFrom(
+      this.inventoryClient
+        .send<
+          IInventoryGetLowStock,
+          Record<string, never>
+        >(INVENTORY_MESSAGE_PATTERNS.INVENTORY_GET_LOW_STOCK, {})
+        .pipe(timeout(10000)),
+    );
   }
 }
