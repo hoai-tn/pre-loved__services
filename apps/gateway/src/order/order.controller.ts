@@ -10,7 +10,8 @@ import {
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../common/decorators/roles.decorator';
 import { User } from '../common/decorators/user.decorator';
-import { AuthGuard } from '../common/guards/auth.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderService } from './order.service';
 
@@ -34,7 +35,7 @@ export class OrderController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.BUYER)
   @ApiOperation({ summary: 'Place a new order' })
   @ApiBody({ type: CreateOrderDto })
@@ -44,7 +45,7 @@ export class OrderController {
   }
 
   @Post('test')
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.BUYER)
   @ApiOperation({ summary: 'Place a new order' })
   @ApiBody({ type: CreateOrderDto })

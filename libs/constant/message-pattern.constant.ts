@@ -3,6 +3,7 @@ export const USER_MESSAGE_PATTERN = {
   GET_ALL_USERS: 'get_all_users',
   REGISTER_USER: 'register_user',
   LOGIN_USER: 'login_user',
+  FIND_OR_CREATE_OAUTH_USER: 'find_or_create_oauth_user',
 };
 
 export const PRODUCT_MESSAGE_PATTERN = {

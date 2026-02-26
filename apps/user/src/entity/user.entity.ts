@@ -14,7 +14,7 @@ export class User {
   @Column({ unique: true })
   username: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({ unique: true })
@@ -25,6 +25,15 @@ export class User {
 
   @Column({ nullable: true })
   avatar: string; // Avatar URL or path
+
+  @Column({ default: 'BUYER' })
+  role: string;
+
+  @Column({ nullable: true })
+  oauthProvider: string;
+
+  @Column({ nullable: true })
+  oauthProviderId: string;
 
   @Column({ default: true })
   isActive: boolean;

@@ -12,6 +12,7 @@ export interface AuthTokens {
 export interface TokenPayload {
   tid: string;
   sub: string;
+  role?: string;
   iat?: number;
   exp?: number;
 }
@@ -33,6 +34,7 @@ export class TokenKeyService {
     const payload = {
       tid: authUser.userId,
       sub: authUser.username,
+      role: authUser.role || 'BUYER',
       iat: Math.floor(Date.now() / 1000),
     };
     const accessToken = await this.jwtService.signAsync(payload, {

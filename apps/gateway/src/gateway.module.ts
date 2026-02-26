@@ -1,8 +1,17 @@
 import { CachedModule } from '@app/cached';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NAME_SERVICE_TCP, PORT_TCP } from 'libs/constant/port-tcp.constant';
+import { AuthOauthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
+import {
+  FacebookStrategy,
+  GoogleStrategy,
+  JwtStrategy,
+  LocalStrategy,
+} from './common/strategies';
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { InventoryModule } from './inventory/inventory.module';
@@ -13,6 +22,11 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: './local/nodeA/.env',
+    }),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     ClientsModule.register([
       {
         name: NAME_SERVICE_TCP.ORDERS_SERVICE,
@@ -70,9 +84,16 @@ import { UserModule } from './user/user.module';
     CategoryModule,
     ShipmentModule,
     CachedModule,
+    AuthOauthModule,
   ],
   controllers: [GatewayController],
-  providers: [GatewayService],
-  exports: [ClientsModule],
+  providers: [
+    GatewayService,
+    JwtStrategy,
+    LocalStrategy,
+    GoogleStrategy,
+    FacebookStrategy,
+  ],
+  exports: [ClientsModule, PassportModule],
 })
 export class GatewayModule {}

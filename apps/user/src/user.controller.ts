@@ -2,6 +2,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { USER_MESSAGE_PATTERN } from 'libs/constant/message-pattern.constant';
 import { LoginUserDto } from './dto/login-user.dto';
+import { OAuthUserDto } from './dto/oauth-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UserService } from './user.service';
 
@@ -33,5 +34,11 @@ export class UserController {
     this.logger.log(`[USER-TCP] Login user`);
     this.logger.log(`[USER-TCP] Payload received:`, payload);
     return await this.userService.login(payload);
+  }
+
+  @MessagePattern({ cmd: USER_MESSAGE_PATTERN.FIND_OR_CREATE_OAUTH_USER })
+  async findOrCreateOAuthUser(@Payload() payload: OAuthUserDto) {
+    this.logger.log(`[USER-TCP] Find or create OAuth user`);
+    return await this.userService.findOrCreateOAuthUser(payload);
   }
 }

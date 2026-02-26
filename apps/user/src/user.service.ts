@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { LoginUserDto } from './dto/login-user.dto';
+import { OAuthUserDto } from './dto/oauth-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { User } from './entity/user.entity';
 @Injectable()
@@ -74,6 +75,57 @@ export class UserService {
       return null;
     }
     return user;
+  }
+
+  async findOrCreateOAuthUser(dto: OAuthUserDto): Promise<User> {
+    this.logger.log(
+      `Finding or creating OAuth user: ${dto.provider}:${dto.providerId}`,
+    );
+
+    // 1. Look up by OAuth provider + providerId
+    let user = await this.userRepository.findOne({
+      where: {
+        oauthProvider: dto.provider,
+        oauthProviderId: dto.providerId,
+      },
+    });
+
+    if (user) {
+      return user;
+    }
+
+    // 2. If email provided, check if existing account with same email
+    if (dto.email) {
+      user = await this.userRepository.findOne({
+        where: { email: dto.email },
+      });
+
+      if (user) {
+        // Link existing account to OAuth provider
+        user.oauthProvider = dto.provider;
+        user.oauthProviderId = dto.providerId;
+        if (dto.avatar && !user.avatar) {
+          user.avatar = dto.avatar;
+        }
+        return await this.userRepository.save(user);
+      }
+    }
+
+    // 3. Create new user
+    const username =
+      dto.email?.split('@')[0] ||
+      `${dto.provider}_${dto.providerId}`;
+
+    const newUser = this.userRepository.create({
+      username,
+      email: dto.email,
+      name: dto.name,
+      avatar: dto.avatar,
+      oauthProvider: dto.provider,
+      oauthProviderId: dto.providerId,
+    });
+
+    return await this.userRepository.save(newUser);
   }
 
   getServiceInfo(): string {

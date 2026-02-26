@@ -42,6 +42,7 @@ export class UserService {
         userId: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
       }),
     );
     this.logger.debug(` Auth token: ${JSON.stringify(authToken)}`);
@@ -49,6 +50,21 @@ export class UserService {
       user,
       authToken,
     };
+  }
+
+  async loginWithUser(user: User) {
+    this.logger.log(`Generating tokens for user: ${user.username}`);
+
+    const authToken = await firstValueFrom<AuthTokens>(
+      this.authClient.send(AUTH_MESSAGE_PATTERNS.CREATE_USER_AUTH_TOKEN, {
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      }),
+    );
+
+    return { user, authToken };
   }
 
   async userLogout(refreshToken: string) {

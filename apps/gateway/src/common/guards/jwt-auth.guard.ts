@@ -1,12 +1,11 @@
 import {
-  CanActivate,
   ExecutionContext,
   Inject,
   Injectable,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { AuthGuard } from '@nestjs/passport';
 import { ClientProxy } from '@nestjs/microservices';
 import { TokenPayload } from 'apps/auth/src/token-key/token-key.service';
 import { Request } from 'express';
@@ -19,20 +18,18 @@ interface AuthenticatedRequest extends Request {
 }
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  private readonly logger = new Logger(AuthGuard.name);
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  private readonly logger = new Logger(JwtAuthGuard.name);
 
   constructor(
     @Inject(NAME_SERVICE_TCP.AUTH_SERVICE)
     private readonly authClient: ClientProxy,
-    private readonly reflector: Reflector,
-  ) {}
+  ) {
+    super();
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const role = this.reflector.get<string[]>('roles', context.getHandler());
-    this.logger.log('role', role);
-
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
@@ -49,7 +46,6 @@ export class AuthGuard implements CanActivate {
           .pipe(timeout(5000)),
       );
 
-      // Attach user payload to request for use in controllers
       request.user = payload;
       return true;
     } catch (error) {

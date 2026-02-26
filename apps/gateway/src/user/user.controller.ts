@@ -17,9 +17,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { User } from '../common/decorators/user.decorator';
-import { AuthGuard } from '../common/guards/auth.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { LoginUserDto, RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
@@ -39,17 +40,18 @@ export class UserController {
   }
 
   @Post('login')
+  @UseGuards(AuthGuard('local'))
   @ApiOperation({ summary: 'Login user' })
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({ status: 200, description: 'Login successful.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async login(
-    @Body(ValidationPipe) dto: LoginUserDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { user, authToken } = await this.userService.login(dto);
-
-    console.log({ refreshToken: authToken.refreshToken });
+    const { user, authToken } = await this.userService.loginWithUser(
+      req.user as any,
+    );
 
     response.cookie('refresh_token', authToken.refreshToken, {
       httpOnly: true,
@@ -61,7 +63,7 @@ export class UserController {
   }
 
   @Post('/logout')
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Logout user' })
   @ApiResponse({ status: 200, description: 'Logout successful.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -85,7 +87,7 @@ export class UserController {
   }
 
   @Get('profile')
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({
