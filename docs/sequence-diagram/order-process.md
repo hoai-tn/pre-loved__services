@@ -38,7 +38,7 @@ sequenceDiagram
     participant Payment
     participant Reward
 
-    Client->>Gateway: POST /orders { userId, items[] }
+    Client->>Gateway: POST /orders { userId, items[], payment_method, coupon_code }
     Gateway->>Order: create_order (TCP)
 
     Order->>Inventory: check_stock (TCP)
